@@ -60,6 +60,12 @@ if (!URL) {
     startBot();
 }
 
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('unhadled rejection!:');
+    console.error(reason);
+    process.exit(1);
+})
+
 function debug(msg) {
     if (DEBUG) {
         console.log(msg);
@@ -104,21 +110,18 @@ function startBot() {
                 "Here's a first text to make you excited for the next morning: ", getMorningText()])
                 .then(() => {
                     debug(`Registered user ${message.from}`);
-                })
-                .catch(function(err) { setTimeout(function() { throw err; }); });
+                });
         } else if (message.body.match(/thank/i) || message.body.match(/^thx/i)) {
             bot.send("You're welcome!", message.from)
                 .then(() => {
                     debug(`${message.from} thanked us`);
-                })
-                .catch(function(err) { setTimeout(function() { throw err; }); });
+                });
         } else {
             let text = getMorningText();
             bot.send(["Can't wait until morning? Here's a text for you:", text], message.from)
                 .then(() => {
                     debug(`${message.from} couldn't wait, we sent them '${text}'`);
-                })
-                .catch(function(err) { setTimeout(function() { throw err; }); });
+                });
         }
     });
 
@@ -128,7 +131,7 @@ function startBot() {
                 debug(`${message.from} started chatting!`);
                 message.reply(`Hey ${user.firstName}! Do you want to receive a `+
                     `good morning message every day? Then reply "Yes I do"`
-                ).catch(function(err) { setTimeout(function() { throw err; }); });;
+                );
             });
     });
 
@@ -147,8 +150,7 @@ function startBot() {
                     bot.send(message, user)
                         .then(() => {
                             debug(`Sent '${message}' to ${user}`);
-                        })
-                        .catch(function(err) { setTimeout(function() { throw err; }); });
+                        });
                 }, delay);
         }
     }, null, true, 'Europe/Berlin');
