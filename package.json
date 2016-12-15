@@ -1,0 +1,17 @@
+{
+  "name": "good-morning-kik-bot",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@kikinteractive/kik": "^2.0.12",
+    "cron": "^1.1.1",
+    "ngrok": "^2.2.4",
+    "node-cron": "^1.1.2"
+  }
+}
