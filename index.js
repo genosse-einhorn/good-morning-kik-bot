@@ -4,7 +4,7 @@
 let util = require('util');
 let http = require('http');
 let ngrok = require('ngrok');
-let cron = require('cron');
+let schedule = require('node-schedule');
 let fs = require('fs');
 let Bot  = require('@kikinteractive/kik');
 
@@ -90,8 +90,34 @@ function saveUser(username) {
     }
 }
 
-function getMorningText() {
-    return greetings[Math.floor(Math.random()*greetings.length)];
+function getMorningTextForUser(user) {
+    let maxCache = greetings.length / 2;
+
+    if (!config.textsSent) config.textsSent = {};
+    if (!config.textsSent[user]) config.textsSent[user] = [];
+
+    while (config.textsSent[user].length > maxCache)
+        config.textsSent[user].shift();
+
+    let available = greetings.filter(e => config.textsSent[user].indexOf(e) < 0);
+
+    let text = available[Math.floor(Math.random()*available.length)];
+
+    config.textsSent[user].push(text);
+    persistConfig();
+
+    return text;
+}
+
+function sendWithDelay(bot, message, user, maxDelay) {
+    let delay = Math.floor(Math.random() * maxDelay);
+    debug(`Preparing to send '${message}' to ${user} in ${Math.floor(delay/1000/60)} min`);
+    setTimeout(() => {
+            bot.send(message, user)
+                .then(() => {
+                    debug(`Sent '${message}' to ${user}`);
+                });
+        }, delay);
 }
 
 function startBot() {
@@ -107,7 +133,8 @@ function startBot() {
     bot.onTextMessage((message) => {
         if (saveUser(message.from)) {
             message.reply(['Congratulations! You will now receive good morning texts!',
-                "Here's a first text to make you excited for the next morning: ", getMorningText()])
+                    "Here's a first text to make you excited for the next morning: ",
+                    getMorningTextForUser(message.from)])
                 .then(() => {
                     debug(`Registered user ${message.from}`);
                 });
@@ -117,7 +144,7 @@ function startBot() {
                     debug(`${message.from} thanked us`);
                 });
         } else {
-            let text = getMorningText();
+            let text = getMorningTextForUser(message.from);
             bot.send(["Can't wait until morning? Here's a text for you:", text], message.from)
                 .then(() => {
                     debug(`${message.from} couldn't wait, we sent them '${text}'`);
@@ -140,20 +167,25 @@ function startBot() {
         .createServer(bot.incoming())
         .listen(PORT);
 
-    new cron.CronJob('0 0 7 * * *', () => {
+    schedule.scheduleJob('0 7 * * *', () => {
         for (let user of config.recipients) {
-            // random timeout: delay up to one hour
-            let delay = Math.floor(Math.random() * 3600 * 1000);
-            let message = getMorningText();
-            debug(`Preparing to send '${message}' to ${user} in ${Math.floor(delay/1000/60)} min`);
-            setTimeout(() => {
-                    bot.send(message, user)
-                        .then(() => {
-                            debug(`Sent '${message}' to ${user}`);
-                        });
-                }, delay);
+            sendWithDelay(bot, getMorningTextForUser(user), user, 3600*1000 /* 1h*/);
         }
-    }, null, true, 'Europe/Berlin');
+    });
+
+    // Christmas Special
+    schedule.scheduleJob('0 18 24 12 *', () => {
+        for (let user of config.recipients) {
+            sendWithDelay(bot, "Merry Christmas, Beautiful!", user, 30*60*1000 /* 30min */);
+        }
+    });
+
+    // Ney Year Special
+    schedule.scheduleJob('5 0 1 1 *', () => {
+        for (let user of config.recipients) {
+            sendWithDelay(bot, "Happy New Year, my Angel <3", user, 5*60*1000 /* 5 min */);
+        }
+    });
 
     debug(`${config.username} has started, registed users: ${config.recipients.join(', ')}`);
 }
