@@ -38,7 +38,7 @@ const greetings = [
     'I was so cold this morning, but then I thought of you and I warmed right up. Good morning!',
     'Good Morning Sunshine... You look great today. How did I know? Because you look great every day.',
     'Sometimes I wish there was no alarm clock because that is the only device which wakes me up when I am dreaming about you.',
-    'All mornings are like paintings:- you need a little inspiration to get going, a little smile to brighten up & an SMS from someone who cares to color your day... (*) Good Morning (*)',
+    'All mornings are like paintings: You need a little inspiration to get going, a little smile to brighten up & a text from someone who cares to color your day... (*) Good Morning (*)',
     'My past will never haunt me, as long as I have you sweetie. Good morning.',
     'Just the thought of you brightens up my morning.',
     'I wish I was an owl. So that I could sleep away in the morning and sing & party all night long! But alas, I’m human. Good morning to you!',
@@ -52,7 +52,7 @@ if (!URL) {
     // Auto-ngrok for local debugging
     ngrok.connect(PORT, (err, url) => {
         if (err) throw err;
-        
+
         URL = url;
         startBot();
     });
@@ -139,14 +139,14 @@ function startBot() {
     let server = http
         .createServer(bot.incoming())
         .listen(PORT);
-        
+
     new cron.CronJob('0 0 7 * * *', () => {
         for (let user of config.recipients) {
             // random timeout: delay up to one hour
             let delay = Math.floor(Math.random() * 3600 * 1000);
             let message = getMorningText();
             debug(`Preparing to send '${message}' to ${user} in ${Math.floor(delay/1000/60)} min`);
-            setTimeout(() => { 
+            setTimeout(() => {
                     bot.send(message, user)
                         .then(() => {
                             debug(`Sent '${message}' to ${user}`);
@@ -154,6 +154,6 @@ function startBot() {
                 }, delay);
         }
     }, null, true, 'Europe/Berlin');
-    
+
     debug(`${config.username} has started, registed users: ${config.recipients.join(', ')}`);
 }
