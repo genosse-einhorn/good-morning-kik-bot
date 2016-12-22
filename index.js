@@ -120,6 +120,14 @@ function sendWithDelay(bot, message, user, maxDelay) {
         }, delay);
 }
 
+function todayIs(year, month, day) {
+    let today = new Date();
+
+    return today.getFullYear() == year
+        && today.getMonth() == month-1
+        && today.getDate() == day;
+}
+
 function startBot() {
     // Configure the bot API endpoint, details for your bot
     let bot = new Bot({
@@ -169,7 +177,21 @@ function startBot() {
 
     schedule.scheduleJob('0 7 * * *', () => {
         for (let user of config.recipients) {
-            sendWithDelay(bot, getMorningTextForUser(user), user, 3600*1000 /* 1h*/);
+            if (user == "sunny3964" && todayIs(2016, 12, 23)) {
+                // exam special
+                sendWithDelay(bot, [
+                    getMorningTextForUser(user),
+                    "I was told that today is your last exam for this year. " +
+                    "Good luck! I know you can do it."
+                ], user, 3600*1000 /* 1h */);
+            } else if (user == "sunny3964" && todayIs(2017, 12, 10)) {
+                // TODO: Make year independent
+                // TODO: Insert sweet birthday text
+                sendWithDelay(bot, "Happy Birthday!", user, 3600*1000 /* 1h */);
+            } else {
+                // business as usual
+                sendWithDelay(bot, getMorningTextForUser(user), user, 3600*1000 /* 1h */);
+            }
         }
     });
 
