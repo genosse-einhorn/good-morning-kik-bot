@@ -203,13 +203,14 @@ function startBot() {
         } else if (message.body.match(/thank/i) || message.body.match(/^thx/i)) {
             bot.send("You're welcome!", message.from)
                 .then(() => {
-                    debug(`${message.from} thanked us`);
+                    debug(`${message.from} thanked us: ${message.body}`);
                 });
         } else {
             let text = getMorningTextForUser(message.from);
             bot.send(["Can't wait until morning? Here's a text for you:", text], message.from)
                 .then(() => {
-                    debug(`${message.from} couldn't wait, we sent them '${text}'`);
+                    debug(`${message.from} couldn't wait: ${message.body}`);
+                    debug(`we sent them '${text}'`);
                 });
         }
     });
