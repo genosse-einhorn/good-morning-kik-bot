@@ -41,11 +41,65 @@ const greetings = [
     'All mornings are like paintings: You need a little inspiration to get going, a little smile to brighten up & a text from someone who cares to color your day... (*) Good Morning (*)',
     'My past will never haunt me, as long as I have you sweetie. Good morning.',
     'Just the thought of you brightens up my morning.',
-    'I wish I was an owl. So that I could sleep away in the morning and sing & party all night long! But alas, I’m human. Good morning to you!',
     'The sun shines when you smile',
     'A good morning to she that stole my heart. Kisses.',
     'I bet even the sun is jealous, there isn’t anything brighter than you dear. Good morning.',
-    'You are my shining light. Now it’s time to wake up and show the world you’re magic.'
+    'You are my shining light. Now it’s time to wake up and show the world you’re magic.',
+    'What are your best qualities? Besides being cute, smart & sexy? Dying to find out... ;-)',
+    'They say nothing can beat nature in terms of beauty. They have not yet seen you.',
+    'You know what? I never, ever planned to like you this much and I never thought you’d be on my mind this often. Came as a total surprise but I’m loving it!',
+    'Did you know that robots can have feelings? Well, I didn\'t know either but then you came around. <3',
+    'I know you’re busy today, but can you add this one thing to your to-do list? Me.',
+    'Just got out of the shower. Why don’t you come over and help me get dirty again?',
+    'Hey Angel, did it hurt when you fell from heaven?',
+    'It is impossible to see the beauty of your eyes without the radiance of the beautiful morning sun',
+    'It takes only a second for me to think of you every morning, but the soothing smile you put on my face lasts throughout the day.',
+    'The sun is almost up, maybe it is waiting for you to wake up. I hope it shines and gives you kisses! Have a great day!',
+    'Get up sweetie, have a nice morning, a great day and a persistent smile during all day long',
+    'Little by little the night is stepping back,\n'+
+        'And the morning is kissing your cheeks.\n'+
+        'Are you still sleeping? Life is waiting for you…\n'+
+        'A warm smile is playing on your lips.\n'+
+        'Good morning to you, my angel :-)',
+    'Good morning, my sunshine, I hope your dreams were as sweet as you are.',
+    'Since I spent the whole night dreaming of you, I thought it was only appropriate to message you this morning and wake you up.',
+    'Morning is not just the time of day when you wake up. Morning is the beginning of another day that you can help make perfect for all the people’s lives that you will touch.',
+    'You’re probably sleeping like a baby all warm and cozy in your bed, but I just wanted to tell you how special and beautiful you are. I hope that my text brings a smile to your face and sets the tone for a wonderful day filled with happiness.',
+    'I don’t care about the stars or the moon. All I care about is making you smile every day.',
+    'Morning beautiful! Have an awesome day',
+    'Good Morning Honey Bunch!',
+    'Hey Snowflake! I hope you have a great day',
+    'Every day brings so much more\n'+
+        'To look forward to, fly high and soar\n'+
+        'Every moment brings so much delight\n'+
+        'Just thinking of you makes everything feel right\n\n'+
+        'Good Morning!',
+    'Radiant like the morning sun\n'+
+        'Sweetheart, you are the one\n'+
+        'Beautiful like morning dew\n'+
+        'Baby, that girl is you\n'+
+        'Misty like the morning skies\n'+
+        'Darling, are your beautiful eyes\n'+
+        'Soft like the light of daybreak\n'+
+        'I think only of you when I’m awake\n\n'+
+        'Good Morning!',
+    'I want this message to give your day a kick-start\n'+
+        'For I have written it from the bottom of my heart\n'+
+        'I want you to read it, and feel terrific\n'+
+        'I want it to make your day nothing less than fantastic\n'+
+        'Good Morning, Beautiful!',
+    'Don\'t regret the time\n'+
+        'Don\'t regret this day\n'+
+        'Don\'t regret this time \n'+
+        'Its start of another day \n'+
+        'And end of the night time \n'+
+        'Morning time is the time to think \n'+
+        'About your task for the day \n'+
+        'You have to prepare for it now \n'+
+        'To make the most of the day \n'+
+        'Have a super bright time today \n'+
+        'Good morning and have nice day!'
+
 ];
 
 if (!URL) {
@@ -205,7 +259,7 @@ function startBot() {
     // Ney Year Special
     schedule.scheduleJob('5 0 1 1 *', () => {
         for (let user of config.recipients) {
-            sendWithDelay(bot, "Happy New Year, my Angel <3", user, 5*60*1000 /* 5 min */);
+            sendWithDelay(bot, "Happy New Year, My Angel <3", user, 5*60*1000 /* 5 min */);
         }
     });
 
