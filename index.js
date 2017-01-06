@@ -98,7 +98,8 @@ const greetings = [
         'You have to prepare for it now \n'+
         'To make the most of the day \n'+
         'Have a super bright time today \n'+
-        'Good morning and have nice day!'
+        'Good morning and have nice day!',
+    'Can I borrow a kiss from you? I promise I\'ll give it back!'
 
 ];
 
