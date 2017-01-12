@@ -13,5 +13,8 @@
     "cron": "^1.1.1",
     "ngrok": "^2.2.4",
     "node-schedule": "^1.2.0"
+  },
+  "devDependencies": {
+    "lolex": "^1.5.2"
   }
 }

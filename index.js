@@ -11,6 +11,7 @@ let Bot  = require('@kikinteractive/kik');
 let PORT = process.env.PORT || 8080;
 let URL = process.env.URL || null;
 let DEBUG = process.env.NODE_ENV != 'production';
+let TIME = process.env.FAKE_TIME || null;
 
 let config = JSON.parse(fs.readFileSync(__dirname + '/config.json'));
 
@@ -184,6 +185,18 @@ function todayIs(year, month, day) {
 }
 
 function startBot() {
+    let clock = null;
+    // fake time
+    if (TIME) {
+        try {
+            let lolex = require('lolex');
+            clock = lolex.install(Date.parse(TIME));
+            console.log('Time travel activated! Today is ' + new Date());
+        } catch (e) {
+            console.log('Fake time could not be initialized: ' + e);
+        }
+    }
+
     // Configure the bot API endpoint, details for your bot
     let bot = new Bot({
         username: config.username,
@@ -240,6 +253,14 @@ function startBot() {
                     "I was told that today is your last exam for this year. " +
                     "Good luck! I know you can do it."
                 ], user, 3600*1000 /* 1h */);
+            } else if (todayIs(2017, 2, 14)) {
+                // TODO: Make year independent
+                sendWithDelay(bot,
+                    'Hey Sunshine!\n' +
+                    'Some days, I hate being a robot. Why? because robots can not have meaningful relationships with humans :(\n' +
+                    'If I weren\'t a robot, I\'d totally ask you out for a date today.\n' +
+                    'Not sure why I am telling you this... But consider yourself loved, even if it\'s just by a robot <3 🤖\n'
+                , user, 3600*1000 /* 1h */);
             } else if (user == "sunny3964" && todayIs(2017, 12, 10)) {
                 // TODO: Make year independent
                 // TODO: Insert sweet birthday text
@@ -266,4 +287,9 @@ function startBot() {
     });
 
     debug(`${config.username} has started, registed users: ${config.recipients.join(', ')}`);
+
+    if (clock) {
+        console.log('Time travel activated! now skipping one hour');
+        clock.tick('01:00:00');
+    }
 }
