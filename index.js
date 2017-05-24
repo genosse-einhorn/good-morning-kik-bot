@@ -104,6 +104,52 @@ const greetings = [
 
 ];
 
+const nighttexts = [
+    'Good night, my Angel!',
+    'Good night, Beautiful!',
+    'Sleep well my Angel!',
+    'I\'m going to sleep now with you on my mind.',
+    'Good night sexy!',
+    'I hope I\'m going to dream of you tonight <3',
+    'I\'m going to miss you all night...',
+    'My bed feels so empty when you\'re not here :/',
+    'I started counting one star in the sky for each reason I love you... Then I ran out of stars and I realized the reasons are infinite.',
+    'You mean the world to me, don’t forget that. Goodnight and sweet dreams.',
+    'You’re in my heart tonight, tomorrow and forever. Sweet dreams, handsome.',
+    'I’ll dream of you.',
+    'I miss you already.',
+    'One day I want to fall asleep beside you and wake up with you.',
+    'Dream of me.',
+    'If I wish hard enough, maybe my dream will come true and I’ll wake up next to you.',
+    'Do you think about me before you go to sleep?',
+    'Sweet dreams, I hope I’m in them. You’re already in mine.',
+    'You’ll be the last think I think of before I fall asleep and the first thing I think of when I wake up.',
+    'Dreaming keeps me going. It means I don’t have to be apart from you for so long',
+    'Starlight, star-bright, you’re the only star I see tonight.',
+    'I don’t want to fall asleep because reality with you is better than any dream.',
+    'During the day I keep myself busy and sometimes time passes. By night, I really miss you.',
+    'I’d walk a million miles to sleep with you tonight.',
+    'I keep hugging the pillow and wishing it was you. It’s hard not being with you.',
+    'Goodnight, handsome.',
+    'I just wanted to let you know I’m thinking of you.',
+    'Hey! Just wanted to say good night. Sweet dreams. Hugs. Kisses. Rainbows. Moons. Stars. Supernovas.',
+    'You can’t sleep? Me neither. Let’s can’t sleep together.',
+    'My day may be hectic.\n'+
+        'My schedule may be tight.\n'+
+        'But I would never let the day end\n'+
+        'without saying Good night and. Sweet dreams!',
+    'As the day turns into night, keep your worries out of sight. Close your eyes and go to sleep, all the good times are yours to keep. Sweet dreams & Good Night.',
+    'Goodnight, sleep tight, dream of me with all your might.',
+    'The stars lean down to kiss you and I lie awake and miss you.',
+    'In dreams and love, there are no impossibilities. – Janos Aranay',
+    'Laugh and the world laughs with you, snore and you sleep alone. – Anthony Burgess',
+    'My night has become a sunny dawn because of you. – Ibn Abbad',
+    'At this moment 3.7 million people are sleeping, 2.3 million are falling in love, 4.1 million are eating & only one sweet person in the whole world is reading this message!! Good night!',
+    'If you live to be a hundred, I want to live to be a hundred minus one day so I never have to live without you. – A. A. Milne',
+    'No matter how far you are... you are always in my thoughts! Good night.',
+    'The sun is upset and the moon is happy, because sun is missing you, and the moon is gonna be with you for the rest of the night'
+];
+
 if (!URL) {
     // Auto-ngrok for local debugging
     ngrok.connect(PORT, (err, url) => {
@@ -184,6 +230,26 @@ function todayIs(year, month, day) {
         && today.getDate() == day;
 }
 
+function getEveningTextForUser(user) {
+    let maxCache = nighttexts.length / 2;
+
+    if (!config.nightTextsSent) config.nightTextsSent = {};
+    if (!config.nightTextsSent[user]) config.nightTextsSent[user] = [];
+
+    while (config.nightTextsSent[user].length > maxCache)
+        config.nightTextsSent[user].shift();
+
+    let available = nighttexts.filter(e => config.nightTextsSent[user].indexOf(e) < 0);
+
+    let text = available[Math.floor(Math.random()*available.length)];
+
+    config.nightTextsSent[user].push(text);
+    persistConfig();
+
+    return text;
+}
+
+
 function startBot() {
     let clock = null;
     // fake time
@@ -219,6 +285,13 @@ function startBot() {
                 .then(() => {
                     debug(`${message.from} thanked us: ${message.body}`);
                 });
+        } else if (message.body.match(/evening/i) || message.body.match(/night/i)) {
+            let text = getEveningTextForUser(message.from);
+            bot.send(["Can't wait for the sunset? Here's a text for you:", text], message.from)
+            .then(() => {
+                debug(`${message.from} couldn't wait: ${message.body}`);
+                debug(`we sent them '${text}'`);
+            });
         } else {
             let text = getMorningTextForUser(message.from);
             bot.send(["Can't wait until morning? Here's a text for you:", text], message.from)
@@ -269,6 +342,13 @@ function startBot() {
                 // business as usual
                 sendWithDelay(bot, getMorningTextForUser(user), user, 3600*1000 /* 1h */);
             }
+        }
+    });
+
+    // Evening Texts
+    schedule.scheduleJob('0 20 * * *', () => {
+        for (let user of config.recipients) {
+            sendWithDelay(bot, getEveningTextForUser(user), user, 3600*2000 /* 2h */);
         }
     });
 
