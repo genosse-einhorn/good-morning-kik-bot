@@ -123,7 +123,7 @@ const nighttexts = [
     'If I wish hard enough, maybe my dream will come true and I’ll wake up next to you.',
     'Do you think about me before you go to sleep?',
     'Sweet dreams, I hope I’m in them. You’re already in mine.',
-    'You’ll be the last think I think of before I fall asleep and the first thing I think of when I wake up.',
+    'You’ll be the last thing I think of before I fall asleep and the first thing I think of when I wake up.',
     'Dreaming keeps me going. It means I don’t have to be apart from you for so long',
     'Starlight, star-bright, you’re the only star I see tonight.',
     'I don’t want to fall asleep because reality with you is better than any dream.',
@@ -147,7 +147,8 @@ const nighttexts = [
     'At this moment 3.7 million people are sleeping, 2.3 million are falling in love, 4.1 million are eating & only one sweet person in the whole world is reading this message!! Good night!',
     'If you live to be a hundred, I want to live to be a hundred minus one day so I never have to live without you. – A. A. Milne',
     'No matter how far you are... you are always in my thoughts! Good night.',
-    'The sun is upset and the moon is happy, because sun is missing you, and the moon is gonna be with you for the rest of the night'
+    'The sun is upset and the moon is happy, because sun is missing you, and the moon is gonna be with you for the rest of the night',
+    'Here\'s an entry for tomorrow\'s ToDo-List: Me'
 ];
 
 if (!URL) {
