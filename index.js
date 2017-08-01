@@ -65,12 +65,21 @@ function saveUser(username) {
 
     if (config.recipients.indexOf(username) == -1) {
         config.recipients.push(username);
-        config.recipient_modes[username] = 'insult';
+        config.recipient_modes[username] = 'sweet';
         persistConfig();
         return true;
     } else {
         return false;
     }
+}
+
+function changeRecipientMode(user, mode) {
+    if (!config.recipient_modes) {
+        config.recipient_modes = {};
+    }
+
+    config.recipient_modes[user] = mode;
+    persistConfig();
 }
 
 function getTextRepo(user, time) {
@@ -182,6 +191,18 @@ function startBot() {
             .then(() => {
                 debug(`${message.from} couldn't wait: ${message.body}`);
                 debug(`we sent them '${text}'`);
+            });
+        } else if (message.body.match(/^be naughty to me$/i)) {
+            changeRecipientMode(message.from, 'insult');
+            bot.send('ok, you wanted it that way', message.from)
+            .then(() => {
+                debug(`${message.from} got put on the naughty list.`);
+            });
+        } else if (message.body.match(/^be nice to me$/i)) {
+            changeRecipientMode(message.from, 'sweet');
+            bot.send('oh no problem sweetie :)', message.from)
+            .then(() => {
+                debug(`${message.from} is back on the nice list`);
             });
         } else {
             let text = getMorningTextForUser(message.from);
