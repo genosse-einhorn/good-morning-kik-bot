@@ -3,7 +3,6 @@
 
 let util = require('util');
 let http = require('http');
-let ngrok = require('ngrok');
 let schedule = require('node-schedule');
 let fs = require('fs');
 let Bot  = require('@kikinteractive/kik');
@@ -152,6 +151,8 @@ const nighttexts = [
 ];
 
 if (!URL) {
+    let ngrok = require('ngrok');
+
     // Auto-ngrok for local debugging
     ngrok.connect(PORT, (err, url) => {
         if (err) throw err;

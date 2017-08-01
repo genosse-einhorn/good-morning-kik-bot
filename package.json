@@ -10,11 +10,10 @@
   "license": "ISC",
   "dependencies": {
     "@kikinteractive/kik": "^2.0.12",
-    "cron": "^1.1.1",
-    "ngrok": "^2.2.4",
     "node-schedule": "^1.2.0"
   },
   "devDependencies": {
+    "ngrok": "^2.2.4",
     "lolex": "^1.5.2"
   }
 }
