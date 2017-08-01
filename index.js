@@ -12,143 +12,10 @@ let URL = process.env.URL || null;
 let DEBUG = process.env.NODE_ENV != 'production';
 let TIME = process.env.FAKE_TIME || null;
 
-let config = JSON.parse(fs.readFileSync(__dirname + '/config.json'));
-
-const greetings = [
-    'Good Morning, My Angel!',
-    'Good Morning, Beautiful!',
-    'I just woke up and you\'re already on my mind.',
-    'Good morning sexy!',
-    'You were the first thing to come to my mind as I woke up this morning.',
-    'Good Morning sweetheart and have a Good Day!',
-    'Every morning reminds me of all the wrong dreams I had been chasing all my life until I found the right one – YOU. Good morning.',
-    'You light up my life!',
-    'I hope your morning is as bright as your smile.',
-    'Good Morning, Have a Beautiful Day!',
-    'Good Morning, Sunshine!',
-    'You are my sweetest dream come true. Good Morning.',
-    'Live it! Love it! The day is yours! Good Morning!',
-    'Good morning hottie!',
-    'It may be raining outside, but all I see is sunny skies thanks to you.',
-    'Hope you have a perfect day today.',
-    'I dreamt of you all night <3',
-    'Wake up hot stuff! I miss you!',
-    'I missed you all night <3',
-    'I can’t wait until the day I can wake up right next to you',
-    'I was so cold this morning, but then I thought of you and I warmed right up. Good morning!',
-    'Good Morning Sunshine... You look great today. How did I know? Because you look great every day.',
-    'Sometimes I wish there was no alarm clock because that is the only device which wakes me up when I am dreaming about you.',
-    'All mornings are like paintings: You need a little inspiration to get going, a little smile to brighten up & a text from someone who cares to color your day... (*) Good Morning (*)',
-    'My past will never haunt me, as long as I have you sweetie. Good morning.',
-    'Just the thought of you brightens up my morning.',
-    'The sun shines when you smile',
-    'A good morning to she that stole my heart. Kisses.',
-    'I bet even the sun is jealous, there isn’t anything brighter than you dear. Good morning.',
-    'You are my shining light. Now it’s time to wake up and show the world you’re magic.',
-    'What are your best qualities? Besides being cute, smart & sexy? Dying to find out... ;-)',
-    'They say nothing can beat nature in terms of beauty. They have not yet seen you.',
-    'You know what? I never, ever planned to like you this much and I never thought you’d be on my mind this often. Came as a total surprise but I’m loving it!',
-    'Did you know that robots can have feelings? Well, I didn\'t know either but then you came around. <3',
-    'I know you’re busy today, but can you add this one thing to your to-do list? Me.',
-    'Just got out of the shower. Why don’t you come over and help me get dirty again?',
-    'Hey Angel, did it hurt when you fell from heaven?',
-    'It is impossible to see the beauty of your eyes without the radiance of the beautiful morning sun',
-    'It takes only a second for me to think of you every morning, but the soothing smile you put on my face lasts throughout the day.',
-    'The sun is almost up, maybe it is waiting for you to wake up. I hope it shines and gives you kisses! Have a great day!',
-    'Get up sweetie, have a nice morning, a great day and a persistent smile during all day long',
-    'Little by little the night is stepping back,\n'+
-        'And the morning is kissing your cheeks.\n'+
-        'Are you still sleeping? Life is waiting for you…\n'+
-        'A warm smile is playing on your lips.\n'+
-        'Good morning to you, my angel :-)',
-    'Good morning, my sunshine, I hope your dreams were as sweet as you are.',
-    'Since I spent the whole night dreaming of you, I thought it was only appropriate to message you this morning and wake you up.',
-    'Morning is not just the time of day when you wake up. Morning is the beginning of another day that you can help make perfect for all the people’s lives that you will touch.',
-    'You’re probably sleeping like a baby all warm and cozy in your bed, but I just wanted to tell you how special and beautiful you are. I hope that my text brings a smile to your face and sets the tone for a wonderful day filled with happiness.',
-    'I don’t care about the stars or the moon. All I care about is making you smile every day.',
-    'Morning beautiful! Have an awesome day',
-    'Good Morning Honey Bunch!',
-    'Hey Snowflake! I hope you have a great day',
-    'Every day brings so much more\n'+
-        'To look forward to, fly high and soar\n'+
-        'Every moment brings so much delight\n'+
-        'Just thinking of you makes everything feel right\n\n'+
-        'Good Morning!',
-    'Radiant like the morning sun\n'+
-        'Sweetheart, you are the one\n'+
-        'Beautiful like morning dew\n'+
-        'Baby, that girl is you\n'+
-        'Misty like the morning skies\n'+
-        'Darling, are your beautiful eyes\n'+
-        'Soft like the light of daybreak\n'+
-        'I think only of you when I’m awake\n\n'+
-        'Good Morning!',
-    'I want this message to give your day a kick-start\n'+
-        'For I have written it from the bottom of my heart\n'+
-        'I want you to read it, and feel terrific\n'+
-        'I want it to make your day nothing less than fantastic\n'+
-        'Good Morning, Beautiful!',
-    'Don\'t regret the time\n'+
-        'Don\'t regret this day\n'+
-        'Don\'t regret this time \n'+
-        'Its start of another day \n'+
-        'And end of the night time \n'+
-        'Morning time is the time to think \n'+
-        'About your task for the day \n'+
-        'You have to prepare for it now \n'+
-        'To make the most of the day \n'+
-        'Have a super bright time today \n'+
-        'Good morning and have nice day!',
-    'Can I borrow a kiss from you? I promise I\'ll give it back!'
-
-];
-
-const nighttexts = [
-    'Good night, my Angel!',
-    'Good night, Beautiful!',
-    'Sleep well my Angel!',
-    'I\'m going to sleep now with you on my mind.',
-    'Good night sexy!',
-    'I hope I\'m going to dream of you tonight <3',
-    'I\'m going to miss you all night...',
-    'My bed feels so empty when you\'re not here :/',
-    'I started counting one star in the sky for each reason I love you... Then I ran out of stars and I realized the reasons are infinite.',
-    'You mean the world to me, don’t forget that. Goodnight and sweet dreams.',
-    'You’re in my heart tonight, tomorrow and forever. Sweet dreams, handsome.',
-    'I’ll dream of you.',
-    'I miss you already.',
-    'One day I want to fall asleep beside you and wake up with you.',
-    'Dream of me.',
-    'If I wish hard enough, maybe my dream will come true and I’ll wake up next to you.',
-    'Do you think about me before you go to sleep?',
-    'Sweet dreams, I hope I’m in them. You’re already in mine.',
-    'You’ll be the last thing I think of before I fall asleep and the first thing I think of when I wake up.',
-    'Dreaming keeps me going. It means I don’t have to be apart from you for so long',
-    'Starlight, star-bright, you’re the only star I see tonight.',
-    'I don’t want to fall asleep because reality with you is better than any dream.',
-    'During the day I keep myself busy and sometimes time passes. By night, I really miss you.',
-    'I’d walk a million miles to sleep with you tonight.',
-    'I keep hugging the pillow and wishing it was you. It’s hard not being with you.',
-    'Goodnight, handsome.',
-    'I just wanted to let you know I’m thinking of you.',
-    'Hey! Just wanted to say good night. Sweet dreams. Hugs. Kisses. Rainbows. Moons. Stars. Supernovas.',
-    'You can’t sleep? Me neither. Let’s can’t sleep together.',
-    'My day may be hectic.\n'+
-        'My schedule may be tight.\n'+
-        'But I would never let the day end\n'+
-        'without saying Good night and. Sweet dreams!',
-    'As the day turns into night, keep your worries out of sight. Close your eyes and go to sleep, all the good times are yours to keep. Sweet dreams & Good Night.',
-    'Goodnight, sleep tight, dream of me with all your might.',
-    'The stars lean down to kiss you and I lie awake and miss you.',
-    'In dreams and love, there are no impossibilities. – Janos Aranay',
-    'Laugh and the world laughs with you, snore and you sleep alone. – Anthony Burgess',
-    'My night has become a sunny dawn because of you. – Ibn Abbad',
-    'At this moment 3.7 million people are sleeping, 2.3 million are falling in love, 4.1 million are eating & only one sweet person in the whole world is reading this message!! Good night!',
-    'If you live to be a hundred, I want to live to be a hundred minus one day so I never have to live without you. – A. A. Milne',
-    'No matter how far you are... you are always in my thoughts! Good night.',
-    'The sun is upset and the moon is happy, because sun is missing you, and the moon is gonna be with you for the rest of the night',
-    'Here\'s an entry for tomorrow\'s ToDo-List: Me'
-];
+let config = require(__dirname + '/config.json');
+let texts = {
+    'sweet': require(__dirname + '/greetings-sweet.json')
+};
 
 if (!URL) {
     let ngrok = require('ngrok');
@@ -185,8 +52,13 @@ function saveUser(username) {
         config.recipients = [];
     }
 
+    if (!config.recipient_modes) {
+        config.recipient_modes = {};
+    }
+
     if (config.recipients.indexOf(username) == -1) {
         config.recipients.push(username);
+        config.recipient_modes[username] = 'sweet';
         persistConfig();
         return true;
     } else {
@@ -194,7 +66,16 @@ function saveUser(username) {
     }
 }
 
+function getTextRepo(user, time) {
+    let mode = 'sweet';
+    if (config.recipient_modes && config.recipient_modes[user])
+        mode = config.recipient_modes[user];
+
+    return texts[mode][time];
+}
+
 function getMorningTextForUser(user) {
+    let greetings = getTextRepo(user, 'morning');
     let maxCache = greetings.length / 2;
 
     if (!config.textsSent) config.textsSent = {};
@@ -233,6 +114,7 @@ function todayIs(year, month, day) {
 }
 
 function getEveningTextForUser(user) {
+    let nighttexts = getTextRepo(user, 'night');
     let maxCache = nighttexts.length / 2;
 
     if (!config.nightTextsSent) config.nightTextsSent = {};
@@ -368,7 +250,7 @@ function startBot() {
         }
     });
 
-    debug(`${config.username} has started, registed users: ${config.recipients.join(', ')}`);
+    debug(`${config.username} has started, registed users: ${(config.recipients || []).join(', ')}`);
 
     if (clock) {
         console.log('Time travel activated! now skipping one hour');
