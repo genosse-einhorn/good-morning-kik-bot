@@ -14,8 +14,15 @@ let TIME = process.env.FAKE_TIME || null;
 
 let config = require(__dirname + '/config.json');
 let texts = {
-    'sweet': require(__dirname + '/greetings-sweet.json')
+    'sweet': require(__dirname + '/greetings-sweet.json'),
+    'insult': require(__dirname + '/greetings-insult.json')
 };
+
+// fixup texts
+for (let mode in texts) {
+    if (!texts[mode]['night'])
+        texts[mode]['night'] = texts[mode]['morning'];
+}
 
 if (!URL) {
     let ngrok = require('ngrok');
@@ -58,7 +65,7 @@ function saveUser(username) {
 
     if (config.recipients.indexOf(username) == -1) {
         config.recipients.push(username);
-        config.recipient_modes[username] = 'sweet';
+        config.recipient_modes[username] = 'insult';
         persistConfig();
         return true;
     } else {
