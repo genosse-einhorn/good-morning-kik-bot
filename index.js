@@ -54,7 +54,7 @@ function persistConfig() {
     fs.writeFileSync(__dirname + '/config.json', JSON.stringify(config, null, 4));
 }
 
-function saveUser(username) {
+function saveRecipient(username) {
     if (!config.recipients) {
         config.recipients = [];
     }
@@ -71,6 +71,11 @@ function saveUser(username) {
     } else {
         return false;
     }
+}
+
+function removeRecipient(username) {
+    config.recipients = config.recipients.filter(u => u != username);
+    persistConfig();
 }
 
 function changeRecipientMode(user, mode) {
@@ -173,7 +178,7 @@ function startBot() {
     bot.updateBotConfiguration();
 
     bot.onTextMessage((message) => {
-        if (saveUser(message.from)) {
+        if (saveRecipient(message.from)) {
             message.reply(['Congratulations! You will now receive good morning texts!',
                     "Here's a first text to make you excited for the next morning: ",
                     getMorningTextForUser(message.from)])
@@ -203,6 +208,13 @@ function startBot() {
             bot.send('oh no problem sweetie :)', message.from)
             .then(() => {
                 debug(`${message.from} is back on the nice list`);
+            });
+        } else if (message.body.match(/^leave me (the fuck )?alone$/i)) {
+            removeRecipient(message.from);
+            bot.send(['I\'m truly devastated to see you leave :(',
+                     'You can text me anytime to resume our relationship'], message.from)
+            .then(() => {
+                debug(`${message.from} has left us :(`);
             });
         } else {
             let text = getMorningTextForUser(message.from);
