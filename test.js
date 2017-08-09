@@ -292,7 +292,7 @@ suite('Messages on time', function() {
 suite('Special Messages', function() {
     let config = {
         username: 'mockbot',
-        recipients: ['sweetie', 'bitch'],
+        recipients: ['sweetie', 'bitch', 'sunny3964'],
         recipient_modes: { 'bitch': 'insult' },
         persist() { /*TODO*/ }
     };
@@ -345,6 +345,18 @@ suite('Special Messages', function() {
         assert.notInclude(texts.sweet.night, backend._lastReceived('sweetie'));
         assert.isNotNull(backend._lastReceived('sweetie'));
     });
+
+    test('Birthday Special 2017 for sunny', function() {
+        clock = lolex.install(moment.tz('2017-12-10 06:59:59', 'Europe/Berlin').toDate());
+        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        bot.start();
+
+        clock.tick('02:01:00');
+
+        assert.notInclude(texts.sweet.morning, backend._lastReceived('sunny3964'));
+        assert.notInclude(texts.sweet.night, backend._lastReceived('sunny3964'));
+        assert.isNotNull(backend._lastReceived('sunny3964'));
+    })
 
     afterEach(function() {
         for (let name in schedule.scheduledJobs) {
