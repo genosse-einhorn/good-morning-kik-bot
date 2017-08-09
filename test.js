@@ -340,6 +340,46 @@ suite('Switch modes', function() {
             });
         });
     });
+
+    test('switch while in message delay at morning', function() {
+        let clock = lolex.install(moment.tz('2017-12-24 06:59:59', 'Europe/Berlin').toDate());
+        try {
+            config.recipient_modes['sweetie'] = 'sweet';
+            config.texts_sent = [];
+            let backend = new MockBackend();
+            let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+            bot.start();
+
+            clock.tick('00:00:02');
+            backend._fakeMessage('be naughty to me', 'sweetie');
+            clock.tick('01:01:00');
+
+            assert.include(texts.insult.morning, backend._lastReceived('sweetie'));
+            assert.isNotNull(backend._lastReceived('sweetie'));
+        } finally {
+            clock.uninstall();
+        }
+    });
+
+    test('switch while in message delay at night', function() {
+        let clock = lolex.install(moment.tz('2017-12-24 19:59:59', 'Europe/Berlin').toDate());
+        try {
+            config.recipient_modes['sweetie'] = 'sweet';
+            config.night_texts_sent = [];
+            let backend = new MockBackend();
+            let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+            bot.start();
+
+            clock.tick('00:00:02');
+            backend._fakeMessage('be naughty to me', 'sweetie');
+            clock.tick('02:01:00');
+
+            assert.include(texts.insult.night, backend._lastReceived('sweetie'));
+            assert.isNotNull(backend._lastReceived('sweetie'));
+        } finally {
+            clock.uninstall();
+        }
+    });
 });
 
 suite('Special Messages', function() {
