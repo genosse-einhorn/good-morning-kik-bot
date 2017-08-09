@@ -240,6 +240,7 @@ module.exports = class GreetingBot {
                 if (this.getUserTimezone(user) != 'de')
                     continue;
 
+                this.debug('Preparing morning greetings for ' + user);
                 setRandomTimeout(() => this.sendMorningText(user), 3600*1000 /* 1h */);
             }
         });
@@ -251,6 +252,7 @@ module.exports = class GreetingBot {
                 if (this.getUserTimezone(user) != 'la')
                     continue;
 
+                this.debug('Preparing morning greetings for ' + user);
                 setRandomTimeout(() => this.sendMorningText(user), 3600*1000 /* 1h */);
             }
         });
@@ -262,6 +264,7 @@ module.exports = class GreetingBot {
                 if (this.getUserTimezone(user) != 'de')
                     continue;
 
+                this.debug('Preparing evening greetings for ' + user);
                 setRandomTimeout(() => this.sendEveningText(user), 3600*2000 /* 2h */);
             }
         });
@@ -272,6 +275,7 @@ module.exports = class GreetingBot {
                 if (this.getUserTimezone(user) != 'la')
                     continue;
 
+                this.debug('Preparing evening greetings for ' + user);
                 setRandomTimeout(() => this.sendEveningText(user), 3600*2000 /* 2h */);
             }
         });
