@@ -4,7 +4,10 @@
 let util = require('util');
 let schedule = require('node-schedule');
 let fs = require('fs');
-let KikBotClass  = require('@kikinteractive/kik');
+let KikBot  = require('@kikinteractive/kik');
+let EventEmitter = require('events').EventEmitter;
+let http = require('http');
+
 
 let OurBot = require('./bot');
 
@@ -55,6 +58,40 @@ config.persist = function() {
     fs.writeFileSync(__dirname + '/config.json', JSON.stringify(config, null, 4));
 }
 
+class KikBackend extends EventEmitter {
+    constructor() {
+        super()
+
+        this.bot = new KikBot({
+            username: config.username,
+            apiKey: config.key,
+            baseUrl: URL
+        });
+
+        this.bot.updateBotConfiguration();
+
+        // Set up your server and start listening
+        this.server = http
+            .createServer(this.bot.incoming())
+            .listen(PORT);
+
+        this.bot.onTextMessage((...args) => this.emit('text-message', ...args));
+        this.bot.onStartChattingMessage((...args) => this.emit('start-chatting', ...args));
+    }
+
+    onTextMessage(func) {
+        this.on('text-message', func);
+    }
+
+    onStartChattingMessage(func) {
+        this.on('start-chatting', func);
+    }
+
+    send(message, recipient) {
+        return this.bot.send(message, recipient);
+    }
+}
+
 
 function startBot() {
     let clock = null;
@@ -73,10 +110,9 @@ function startBot() {
     let bot = new OurBot({
         config: config,
         texts: texts,
-        KikBot: KikBotClass,
+        backend: new KikBackend(),
         schedule: schedule,
-        url: URL,
-        port: PORT
+        debug: debug
     });
 
     bot.start();

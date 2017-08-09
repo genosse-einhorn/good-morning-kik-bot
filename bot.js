@@ -1,14 +1,5 @@
 'use strict';
 
-let http = require('http');
-
-let DEBUG = process.env.NODE_ENV != 'production';
-function debug(msg) {
-    if (DEBUG) {
-        console.log(msg);
-    }
-}
-
 function todayIs(year, month, day) {
     let today = new Date();
 
@@ -18,13 +9,12 @@ function todayIs(year, month, day) {
 }
 
 module.exports = class GreetingBot {
-    constructor({config, texts, KikBot, schedule, url, port}) {
+    constructor({config, texts, backend, schedule, debug}) {
         this.config = config;
         this.texts = texts;
-        this.KikBotClass = KikBot;
+        this.bot = backend;
         this.schedule = schedule;
-        this.URL = url;
-        this.PORT = port;
+        this.debug = debug;
     }
 
     saveRecipient(username) {
@@ -90,11 +80,11 @@ module.exports = class GreetingBot {
 
     sendWithDelay(message, user, maxDelay) {
         let delay = Math.floor(Math.random() * maxDelay);
-        debug(`Preparing to send '${message}' to ${user} in ${Math.floor(delay/1000/60)} min`);
+        this.debug(`Preparing to send '${message}' to ${user} in ${Math.floor(delay/1000/60)} min`);
         setTimeout(() => {
                 this.bot.send(message, user)
                     .then(() => {
-                        debug(`Sent '${message}' to ${user}`);
+                        this.debug(`Sent '${message}' to ${user}`);
                     });
             }, delay);
     }
@@ -120,68 +110,54 @@ module.exports = class GreetingBot {
     }
 
     start() {
-        // Configure the bot API endpoint, details for your bot
-        this.bot = new this.KikBotClass({
-            username: this.config.username,
-            apiKey: this.config.key,
-            baseUrl: this.URL
-        });
-
-        this.bot.updateBotConfiguration();
-
         this.bot.onTextMessage((message) => {
             if (this.saveRecipient(message.from)) {
                 message.reply(['Congratulations! You will now receive good morning texts!',
                         "Here's a first text to make you excited for the next morning: ",
                         this.getMorningTextForUser(message.from)])
                     .then(() => {
-                        debug(`Registered user ${message.from}`);
+                        this.debug(`Registered user ${message.from}`);
                     });
             } else if (message.body.match(/thank/i) || message.body.match(/^thx/i)) {
                 this.bot.send("You're welcome!", message.from)
                     .then(() => {
-                        debug(`${message.from} thanked us: ${message.body}`);
+                        this.debug(`${message.from} thanked us: ${message.body}`);
                     });
             } else if (message.body.match(/evening/i) || message.body.match(/night/i)) {
                 let text = this.getEveningTextForUser(message.from);
                 this.bot.send(["Can't wait for the sunset? Here's a text for you:", text], message.from)
                 .then(() => {
-                    debug(`${message.from} couldn't wait: ${message.body}`);
-                    debug(`we sent them '${text}'`);
+                    this.debug(`${message.from} couldn't wait: ${message.body}`);
+                    this.debug(`we sent them '${text}'`);
                 });
             } else if (message.body.match(/^be naughty to me$/i)) {
                 this.changeRecipientMode(message.from, 'insult');
                 this.bot.send('ok, you wanted it that way', message.from)
                 .then(() => {
-                    debug(`${message.from} got put on the naughty list.`);
+                    this.debug(`${message.from} got put on the naughty list.`);
                 });
             } else if (message.body.match(/^be nice to me$/i)) {
                 this.changeRecipientMode(message.from, 'sweet');
                 this.bot.send('oh no problem sweetie :)', message.from)
                 .then(() => {
-                    debug(`${message.from} is back on the nice list`);
+                    this.debug(`${message.from} is back on the nice list`);
                 });
             } else if (message.body.match(/^leave me (the fuck )?alone$/i)) {
                 this.removeRecipient(message.from);
                 this.bot.send(['I\'m truly devastated to see you leave :(',
                         'You can text me anytime to resume our relationship'], message.from)
                 .then(() => {
-                    debug(`${message.from} has left us :(`);
+                    this.debug(`${message.from} has left us :(`);
                 });
             } else {
                 let text = this.getMorningTextForUser(message.from);
                 this.bot.send(["Can't wait until morning? Here's a text for you:", text], message.from)
                     .then(() => {
-                        debug(`${message.from} couldn't wait: ${message.body}`);
-                        debug(`we sent them '${text}'`);
+                        this.debug(`${message.from} couldn't wait: ${message.body}`);
+                        this.debug(`we sent them '${text}'`);
                     });
             }
         });
-
-        // Set up your server and start listening
-        this.server = http
-            .createServer(this.bot.incoming())
-            .listen(this.PORT);
 
         this.schedule.scheduleJob('0 7 * * *', () => {
             for (let user of this.config.recipients) {
@@ -232,7 +208,7 @@ module.exports = class GreetingBot {
             }
         });
 
-        debug(`${this.config.username} has started, registed users: ${(this.config.recipients || []).join(', ')}`);
+        this.debug(`${this.config.username} has started, registed users: ${(this.config.recipients || []).join(', ')}`);
     }
 
 }
