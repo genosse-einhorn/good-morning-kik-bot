@@ -292,7 +292,7 @@ suite('Messages on time', function() {
     });
 });
 
-suite('Switch modes', function() {
+suite('Commands', function() {
     let config = {
         username: 'mockbot',
         recipients: ['sweetie', 'bitch'],
@@ -379,6 +379,15 @@ suite('Switch modes', function() {
         } finally {
             clock.uninstall();
         }
+    });
+
+    test('leave the bot', function() {
+        config.recipients.push('blub');
+        backend._fakeMessage('leave me alone', 'blub');
+
+        return continueImmediate(() => {
+            assert.notInclude(config.recipients, 'blub');
+        });
     });
 });
 
