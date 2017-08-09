@@ -1,6 +1,8 @@
 const assert = require('chai').assert;
 const EventEmitter = require('events').EventEmitter;
 const schedule = require('node-schedule');
+const lolex = require('lolex');
+const moment = require('moment-timezone');
 
 const Bot = require('./bot');
 
@@ -97,5 +99,192 @@ suite('Welcome Message', function() {
         return continueImmediate(() => {
             assert.isOk(backend._lastReceived('blub'));
         });
+    });
+});
+
+suite('Messages on demand', function() {
+    let config = {
+        username: 'mockbot',
+        recipients: ['sweetie', 'bitch'],
+        recipient_modes: { 'bitch': 'insult' },
+        persist() { /*TODO*/ }
+    };
+    let texts = {
+        sweet: {
+            morning: ['sweet morning #1', 'sweet morning #2', 'sweet morning #3'],
+            night: ['sweet night #1', 'sweet night #2', 'sweet night #3']
+        },
+        insult: {
+            morning: ['insulting morning #1', 'insulting morning #2', 'insulting morning #3'],
+            night: ['insulting night #1', 'insulting night #2', 'insulting night #3']
+        }
+    };
+    let backend = new MockBackend();
+    let bot = new Bot({config:config, texts:texts, backend:backend, schedule:nullSchedule, debug:()=>{}});
+    bot.start();
+
+    test('Sweet Text #1', function() {
+        let oldTexts = [].concat(config.texts_sent && config.texts_sent['sweetie'] ? config.texts_sent['sweetie'] : []);
+        backend._fakeMessage('Hello', 'sweetie');
+
+        return continueImmediate(() => {
+            assert.include(texts.sweet.morning, backend._lastReceived('sweetie'));
+            assert.equal(backend._lastReceived('sweetie'), config.texts_sent['sweetie'].slice(-1)[0]);
+            assert.notInclude(oldTexts, backend._lastReceived('sweetie'));
+        });
+    });
+
+    test('Sweet Text #2', function() {
+        let oldTexts = [].concat(config.texts_sent && config.texts_sent['sweetie'] ? config.texts_sent['sweetie'] : []);
+        backend._fakeMessage('Hello again!', 'sweetie');
+
+        return continueImmediate(() => {
+            assert.include(texts.sweet.morning, backend._lastReceived('sweetie'));
+            assert.equal(backend._lastReceived('sweetie'), config.texts_sent['sweetie'].slice(-1)[0]);
+            assert.notInclude(oldTexts, backend._lastReceived('sweetie'));
+        });
+    });
+
+    test('Sweet Night #1', function() {
+        let oldTexts = [].concat(config.night_texts_sent && config.night_texts_sent['sweetie'] ?
+            config.night_texts_sent['sweetie'] : []);
+        backend._fakeMessage('Good night!', 'sweetie');
+
+        return continueImmediate(() => {
+            assert.include(texts.sweet.night, backend._lastReceived('sweetie'));
+            assert.equal(backend._lastReceived('sweetie'), config.night_texts_sent['sweetie'].slice(-1)[0]);
+            assert.notInclude(oldTexts, backend._lastReceived('sweetie'));
+        });
+    });
+
+    test('Sweet Night #2', function() {
+        let oldTexts = [].concat(config.night_texts_sent && config.night_texts_sent['sweetie'] ?
+            config.night_texts_sent['sweetie'] : []);
+        backend._fakeMessage('Good night!', 'sweetie');
+
+        return continueImmediate(() => {
+            assert.include(texts.sweet.night, backend._lastReceived('sweetie'));
+            assert.equal(backend._lastReceived('sweetie'), config.night_texts_sent['sweetie'].slice(-1)[0]);
+            assert.notInclude(oldTexts, backend._lastReceived('sweetie'));
+        });
+    });
+
+    test('Insulting Text #1', function() {
+        let oldTexts = [].concat(config.texts_sent && config.texts_sent['bitch'] ? config.texts_sent['bitch'] : []);
+        backend._fakeMessage('Hello', 'bitch');
+
+        return continueImmediate(() => {
+            assert.include(texts.insult.morning, backend._lastReceived('bitch'));
+            assert.equal(backend._lastReceived('bitch'), config.texts_sent['bitch'].slice(-1)[0]);
+            assert.notInclude(oldTexts, backend._lastReceived('bitch'));
+        });
+    });
+
+    test('Insulting Text #2', function() {
+        let oldTexts = [].concat(config.texts_sent && config.texts_sent['bitch'] ? config.texts_sent['bitch'] : []);
+        backend._fakeMessage('Hello', 'bitch');
+
+        return continueImmediate(() => {
+            assert.include(texts.insult.morning, backend._lastReceived('bitch'));
+            assert.equal(backend._lastReceived('bitch'), config.texts_sent['bitch'].slice(-1)[0]);
+            assert.notInclude(oldTexts, backend._lastReceived('bitch'));
+        });
+    });
+
+    test('Insulting Night #1', function() {
+        let oldTexts = [].concat(config.night_texts_sent && config.night_texts_sent['bitch'] ?
+            config.night_texts_sent['bitch'] : []);
+        backend._fakeMessage('Good night!', 'bitch');
+
+        return continueImmediate(() => {
+            assert.include(texts.insult.night, backend._lastReceived('bitch'));
+            assert.equal(backend._lastReceived('bitch'), config.night_texts_sent['bitch'].slice(-1)[0]);
+            assert.notInclude(oldTexts, backend._lastReceived('bitch'));
+        });
+    });
+
+    test('Insulting Night #2', function() {
+        let oldTexts = [].concat(config.night_texts_sent && config.night_texts_sent['bitch'] ?
+            config.night_texts_sent['bitch'] : []);
+        backend._fakeMessage('Good night!', 'bitch');
+
+        return continueImmediate(() => {
+            assert.include(texts.insult.night, backend._lastReceived('bitch'));
+            assert.equal(backend._lastReceived('bitch'), config.night_texts_sent['bitch'].slice(-1)[0]);
+            assert.notInclude(oldTexts, backend._lastReceived('bitch'));
+        });
+    });
+});
+
+suite('Messages on time', function() {
+    let config = {
+        username: 'mockbot',
+        recipients: ['sweetie', 'bitch'],
+        recipient_modes: { 'bitch': 'insult' },
+        persist() { /*TODO*/ }
+    };
+    let texts = {
+        sweet: {
+            morning: ['sweet morning #1', 'sweet morning #2', 'sweet morning #3'],
+            night: ['sweet night #1', 'sweet night #2', 'sweet night #3']
+        },
+        insult: {
+            morning: ['insulting morning #1', 'insulting morning #2', 'insulting morning #3'],
+            night: ['insulting night #1', 'insulting night #2', 'insulting night #3']
+        }
+    };
+    let backend = new MockBackend();
+
+    let clock = null;
+
+    test('sweet morning text', function() {
+        clock = lolex.install(moment.tz('2017-08-09 06:59:59', 'Europe/Berlin').toDate());
+        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        bot.start();
+
+        clock.tick('01:01:00');
+
+        assert.include(texts.sweet.morning, backend._lastReceived('sweetie'));
+    });
+
+    test('insulting morning text', function() {
+        clock = lolex.install(moment.tz('2017-08-09 06:59:59', 'Europe/Berlin').toDate());
+        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        bot.start();
+
+        clock.tick('01:01:00');
+
+        assert.include(texts.insult.morning, backend._lastReceived('bitch'));
+    });
+
+    test('sweet night text', function() {
+        clock = lolex.install(moment.tz('2017-08-09 19:59:59', 'Europe/Berlin').toDate());
+        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        bot.start();
+
+        clock.tick('02:01:00');
+
+        assert.include(texts.sweet.night, backend._lastReceived('sweetie'));
+    });
+
+    test('insulting night text', function() {
+        clock = lolex.install(moment.tz('2017-08-09 19:59:59', 'Europe/Berlin').toDate());
+        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        bot.start();
+
+        clock.tick('02:01:00');
+
+        assert.include(texts.insult.night, backend._lastReceived('bitch'));
+    });
+
+    afterEach(function() {
+        for (let name in schedule.scheduledJobs) {
+            schedule.scheduledJobs[name].cancel();
+        }
+
+        if (clock) {
+            clock.uninstall();
+            clock = null;
+        }
     });
 });
