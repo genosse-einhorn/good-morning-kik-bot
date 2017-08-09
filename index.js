@@ -107,7 +107,9 @@ function startBot() {
     bot.start();
 
     if (clock) {
-        console.log('Time travel activated! now skipping one hour');
+        console.log('Time travel activated! now skipping ten minutes');
+        clock.tick('00:10:00');
+        console.log('... and another hour');
         clock.tick('01:00:00');
     }
 }

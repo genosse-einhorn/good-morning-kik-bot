@@ -226,8 +226,9 @@ suite('Messages on demand', function() {
 suite('Messages on time', function() {
     let config = {
         username: 'mockbot',
-        recipients: ['sweetie', 'bitch'],
-        recipient_modes: { 'bitch': 'insult' },
+        recipients: ['sweetie', 'bitch', 'la-sweetie', 'la-bitch'],
+        recipient_modes: { 'bitch': 'insult', 'la-bitch': 'insult' },
+        recipient_timezones: { 'la-sweetie': 'la', 'la-bitch': 'la' },
         persist() { /*TODO*/ }
     };
     let texts = {
@@ -285,6 +286,84 @@ suite('Messages on time', function() {
         clock.tick('02:01:00');
 
         assert.include(texts.insult.night, backend._lastReceived('bitch'));
+    });
+
+    test('sweet morning text in LA (positive test)', function() {
+        clock = lolex.install(moment.tz('2017-08-09 06:59:59', 'America/Los_Angeles').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        bot.start();
+
+        clock.tick('01:01:00');
+
+        assert.include(texts.sweet.morning, backend._lastReceived('la-sweetie'));
+    });
+
+    test('sweet morning text in LA (negative test #1)', function() {
+        // here we test that we DON'T receive a message when it's european morning
+        clock = lolex.install(moment.tz('2017-08-09 06:59:59', 'Europe/Berlin').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        bot.start();
+
+        config.texts_sent['la-sweetie'] = [];
+
+        clock.tick('01:01:00');
+
+        assert.isNull(backend._lastReceived('la-sweetie'));
+    });
+
+    test('sweet morning text in LA (negative test #2)', function() {
+        // here we test that european sweetie won't receive a message on LA sunrise
+        clock = lolex.install(moment.tz('2017-08-09 06:59:59', 'America/Los_Angeles').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        bot.start();
+
+        config.texts_sent['sweetie'] = [];
+
+        clock.tick('01:01:00');
+
+        assert.isNull(backend._lastReceived('sweetie'));
+    });
+
+    test('insulting evening text in LA (positive test)', function() {
+        clock = lolex.install(moment.tz('2017-08-09 19:59:59', 'America/Los_Angeles').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        bot.start();
+
+        clock.tick('02:01:00');
+
+        assert.include(texts.insult.night, backend._lastReceived('la-bitch'));
+    });
+
+    test('insulting evening text in LA (negative test #1)', function() {
+        // here we test that we DON'T receive a message when it's european evening
+        clock = lolex.install(moment.tz('2017-08-09 19:59:59', 'Europe/Berlin').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        bot.start();
+
+        config.texts_sent['la-bitch'] = [];
+
+        clock.tick('02:01:00');
+
+        assert.isNull(backend._lastReceived('la-bitch'));
+    });
+
+    test('insulting evening text in LA (negative test #2)', function() {
+        // here we test that european sweetie won't receive a message on LA sunset
+        clock = lolex.install(moment.tz('2017-08-09 19:59:59', 'America/Los_Angeles').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        bot.start();
+
+        config.texts_sent['bitch'] = [];
+
+        clock.tick('02:01:00');
+
+        assert.isNull(backend._lastReceived('bitch'));
     });
 
     afterEach(function() {
@@ -465,10 +544,12 @@ suite('Special Messages', function() {
         assert.isNotNull(backend._lastReceived('sweetie'));
     });
 
-    test('Birthday Special 2017 for sunny', function() {
-        clock = lolex.install(moment.tz('2017-12-10 06:59:59', 'Europe/Berlin').toDate());
+    test('Birthday Special 2017 for sunny in LA', function() {
+        let _cfg = JSON.parse(JSON.stringify(config));
+        _cfg.recipient_timezones = { 'sunny3964': 'la' };
+        clock = lolex.install(moment.tz('2017-12-10 06:59:59', 'America/Los_Angeles').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('02:01:00');

@@ -60,6 +60,13 @@ module.exports = class GreetingBot {
         return this.texts[mode][time];
     }
 
+    getUserTimezone(user) {
+        if (this.config.recipient_timezones && this.config.recipient_timezones[user])
+            return this.config.recipient_timezones[user];
+
+        return 'de';
+    }
+
     getMorningTextForUser(user) {
         let greetings = this.getTextRepo(user, 'morning');
         let maxCache = greetings.length / 2;
@@ -94,7 +101,7 @@ module.exports = class GreetingBot {
     sendMessage(message, user) {
         this.bot.send(message, user)
         .then(() => {
-            this.debug(`Sent '${message}' to ${user}`);
+            this.debug(`Sent '${message}' to ${user} at ${new Date()}`);
         });
     }
 
@@ -205,18 +212,49 @@ module.exports = class GreetingBot {
             }
         });
 
+        // Morning in Europe
         this.cron({ on: '0 7 * * *', timezone: 'Europe/Berlin' }, () => {
+            console.log('Starting morning greetings in Europe at ' + (new Date()));
             for (let user of this.config.recipients) {
+                if (this.getUserTimezone(user) != 'de')
+                    continue;
+
+                setTimeout(() => this.sendMorningText(user), 3600*1000 /* 1h */);
+            }
+        });
+
+        // Morning in L.A.
+        this.cron({ on: '0 7 * * *', timezone: 'America/Los_Angeles' }, () => {
+            console.log('Starting morning greetings in LA at ' + (new Date()));
+            for (let user of this.config.recipients) {
+                if (this.getUserTimezone(user) != 'la')
+                    continue;
+
                 setTimeout(() => this.sendMorningText(user), 3600*1000 /* 1h */);
             }
         });
 
         // Evening Texts
         this.cron({ on: '0 20 * * *', timezone: 'Europe/Berlin' }, () => {
+            console.log('Starting evening greetings in Europe at ' + (new Date()));
             for (let user of this.config.recipients) {
+                if (this.getUserTimezone(user) != 'de')
+                    continue;
+
                 setTimeout(() => this.sendEveningText(user), 3600*2000 /* 2h */);
             }
         });
+
+        this.cron({ on: '0 20 * * *', timezone: 'America/Los_Angeles' }, () => {
+            console.log('Starting evening greetings in LA at ' + (new Date()));
+            for (let user of this.config.recipients) {
+                if (this.getUserTimezone(user) != 'la')
+                    continue;
+
+                setTimeout(() => this.sendEveningText(user), 3600*2000 /* 2h */);
+            }
+        });
+
 
         // Christmas Special
         this.cron({ on: '0 18 24 12 *', timezone: 'Europe/Berlin' }, () => {
