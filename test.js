@@ -8,9 +8,10 @@ const Bot = require('./bot');
 
 class MockBackend extends EventEmitter {
     constructor() {
-        super()
+        super();
 
-        this._receivedMessages = {}
+        this._receivedMessages = {};
+        this._userProfiles = {};
     }
 
     onTextMessage(func) {
@@ -31,15 +32,19 @@ class MockBackend extends EventEmitter {
     }
 
     getUserProfile(nickname) {
-        return Promise.resolve({
-            displayName: 'Mock User',
-            username: nickname,
-            firstName: 'Mock',
-            lastName: 'User',
-            profilePicUrl: 'http://example.com/',
-            profilePicLastModified: 0,
-            timezone: 'Europe/London'
-        });
+        if (this._userProfiles[nickname]) {
+            return Promise.resolve(this._userProfiles[nickname]);
+        } else {
+            return Promise.resolve({
+                displayName: 'Mock User',
+                username: nickname,
+                firstName: 'Mock',
+                lastName: 'User',
+                profilePicUrl: 'http://example.com/',
+                profilePicLastModified: 0,
+                timezone: 'Europe/London'
+            });
+        }
     }
 
     _fakeMessage(text, sender) {
@@ -105,6 +110,56 @@ suite('Welcome Message', function() {
 
         return continueImmediate(() => {
             assert.isOk(backend._lastReceived('blub'));
+        });
+    });
+
+    test('setting timezone based on kik data - LA', function() {
+        let config = {username:'mockbot', persist(){}};
+        let texts = {'sweet':{'morning':['x'], 'night':['x']}};
+        let backend = new MockBackend();
+        backend._userProfiles['pacific-sunshine'] = {
+                displayName: 'Mock User',
+                username: 'pacific-sunshine',
+                firstName: 'Mock',
+                lastName: 'User',
+                profilePicUrl: 'http://example.com/',
+                profilePicLastModified: 0,
+                timezone: 'America/New_York'
+            }
+
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:nullCron, debug:()=>{}});
+        bot.start();
+
+        backend._fakeMessage('Hello', 'pacific-sunshine');
+
+        return continueImmediate(() => {
+            assert.isOk(backend._lastReceived('pacific-sunshine'));
+            assert.equal(config.recipient_timezones['pacific-sunshine'], 'la');
+        });
+    });
+
+    test('setting timezone based on kik data - DE', function() {
+        let config = {username:'mockbot', persist(){}};
+        let texts = {'sweet':{'morning':['x'], 'night':['x']}};
+        let backend = new MockBackend();
+        backend._userProfiles['european-sunshine'] = {
+                displayName: 'Mock User',
+                username: 'european-sunshine',
+                firstName: 'Mock',
+                lastName: 'User',
+                profilePicUrl: 'http://example.com/',
+                profilePicLastModified: 0,
+                timezone: 'Europe/Berlin'
+            }
+
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:nullCron, debug:()=>{}});
+        bot.start();
+
+        backend._fakeMessage('Hello', 'european-sunshine');
+
+        return continueImmediate(() => {
+            assert.isOk(backend._lastReceived('european-sunshine'));
+            assert.equal(config.recipient_timezones['european-sunshine'], 'de');
         });
     });
 });

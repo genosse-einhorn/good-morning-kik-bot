@@ -33,10 +33,25 @@ module.exports = class GreetingBot {
             this.config.recipient_modes = {};
         }
 
+        if (!this.config.recipient_timezones) {
+            this.config.recipient_timezones = {};
+        }
+
         if (this.config.recipients.indexOf(username) == -1) {
             this.config.recipients.push(username);
             this.config.recipient_modes[username] = 'sweet';
             this.config.persist();
+
+            // retrieve and save timezone
+            this.bot.getUserProfile(username).then(profile => {
+                if (profile.timezone.startsWith('America/')) {
+                    this.config.recipient_timezones[username] = 'la';
+                } else {
+                    this.config.recipient_timezones[username] = 'de';
+                }
+                this.config.persist();
+            });
+
             return true;
         } else {
             return false;
