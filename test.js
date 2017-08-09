@@ -288,3 +288,72 @@ suite('Messages on time', function() {
         }
     });
 });
+
+suite('Special Messages', function() {
+    let config = {
+        username: 'mockbot',
+        recipients: ['sweetie', 'bitch'],
+        recipient_modes: { 'bitch': 'insult' },
+        persist() { /*TODO*/ }
+    };
+    let texts = {
+        sweet: {
+            morning: ['sweet morning #1', 'sweet morning #2', 'sweet morning #3'],
+            night: ['sweet night #1', 'sweet night #2', 'sweet night #3']
+        },
+        insult: {
+            morning: ['insulting morning #1', 'insulting morning #2', 'insulting morning #3'],
+            night: ['insulting night #1', 'insulting night #2', 'insulting night #3']
+        }
+    };
+    let backend = new MockBackend();
+
+    let clock = null;
+
+    test('Christmas Special 2017', function() {
+        clock = lolex.install(moment.tz('2017-12-24 17:59:59', 'Europe/Berlin').toDate());
+        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        bot.start();
+
+        clock.tick('01:01:00');
+
+        assert.notInclude(texts.sweet.morning, backend._lastReceived('sweetie'));
+        assert.notInclude(texts.sweet.night, backend._lastReceived('sweetie'));
+        assert.isNotNull(backend._lastReceived('sweetie'));
+    });
+
+    test('Christmas Special 2018', function() {
+        clock = lolex.install(moment.tz('2018-12-24 17:59:59', 'Europe/Berlin').toDate());
+        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        bot.start();
+
+        clock.tick('01:01:00');
+
+        assert.notInclude(texts.sweet.morning, backend._lastReceived('sweetie'));
+        assert.notInclude(texts.sweet.night, backend._lastReceived('sweetie'));
+        assert.isNotNull(backend._lastReceived('sweetie'));
+    });
+
+    test('New Year Special 2018', function() {
+        clock = lolex.install(moment.tz('2017-12-31 23:00:00', 'Europe/Berlin').toDate());
+        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        bot.start();
+
+        clock.tick('02:01:00');
+
+        assert.notInclude(texts.sweet.morning, backend._lastReceived('sweetie'));
+        assert.notInclude(texts.sweet.night, backend._lastReceived('sweetie'));
+        assert.isNotNull(backend._lastReceived('sweetie'));
+    });
+
+    afterEach(function() {
+        for (let name in schedule.scheduledJobs) {
+            schedule.scheduledJobs[name].cancel();
+        }
+
+        if (clock) {
+            clock.uninstall();
+            clock = null;
+        }
+    });
+});
