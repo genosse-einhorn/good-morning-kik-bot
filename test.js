@@ -643,6 +643,36 @@ suite('Special Messages', function() {
         assert.match(backend._lastReceived('sweetie'), /date/i);
     })
 
+    test('Sunny flying to LA special', function() {
+        clock = lolex.install(moment.tz('2017-08-19 06:59:59', 'Europe/Berlin').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        bot.start();
+
+        clock.tick('02:01:00');
+
+        assert.notInclude(texts.sweet.morning, backend._lastReceived('sunny3964'));
+        assert.notInclude(texts.sweet.night, backend._lastReceived('sunny3964'));
+        assert.isNotNull(backend._lastReceived('sunny3964'));
+        assert.match(backend._lastReceived('sunny3964'), /flight/i);
+    })
+
+    test('Sunny flying back from LA special', function() {
+        let _cfg = JSON.parse(JSON.stringify(config));
+        _cfg.recipient_timezones = { 'sunny3964': 'la' };
+        clock = lolex.install(moment.tz('2017-12-21 06:59:59', 'America/Los_Angeles').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        bot.start();
+
+        clock.tick('02:01:00');
+
+        assert.notInclude(texts.sweet.morning, backend._lastReceived('sunny3964'));
+        assert.notInclude(texts.sweet.night, backend._lastReceived('sunny3964'));
+        assert.isNotNull(backend._lastReceived('sunny3964'));
+        assert.match(backend._lastReceived('sunny3964'), /flight/i);
+    })
+
     afterEach(function() {
         cron.cancelAll();
 

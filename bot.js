@@ -158,6 +158,11 @@ module.exports = class GreetingBot {
             // TODO: Make year independent
             // TODO: Insert sweet birthday text
             this.sendMessage("Happy Birthday!", user);
+        } else if (user == "sunny3964" && todayIs(2017, 8, 19)) {
+            this.sendMessage("Have a safe flight and a fun exchange semester in the U.S.! ✈️ 🇺🇸", user);
+        } else if (user == "sunny3964" && todayIs(2017, 12, 21)) {
+            this.sendMessage("Your're flying home today, right? I wish you a safe flight! ✈️ " +
+                "I'm sure people at home are waiting for you :)", user);
         } else {
             // business as usual
             this.sendMessage(this.getMorningTextForUser(user), user);
