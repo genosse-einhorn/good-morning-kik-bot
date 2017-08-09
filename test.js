@@ -289,6 +289,56 @@ suite('Messages on time', function() {
     });
 });
 
+suite('Switch modes', function() {
+    let config = {
+        username: 'mockbot',
+        recipients: ['sweetie', 'bitch'],
+        recipient_modes: { 'bitch': 'insult' },
+        persist() { /*TODO*/ }
+    };
+    let texts = {
+        sweet: {
+            morning: ['sweet morning #1', 'sweet morning #2', 'sweet morning #3'],
+            night: ['sweet night #1', 'sweet night #2', 'sweet night #3']
+        },
+        insult: {
+            morning: ['insulting morning #1', 'insulting morning #2', 'insulting morning #3'],
+            night: ['insulting night #1', 'insulting night #2', 'insulting night #3']
+        }
+    };
+    let backend = new MockBackend();
+    let bot = new Bot({config:config, texts:texts, backend:backend, schedule:nullSchedule, debug:()=>{}});
+    bot.start();
+
+    test('switching sweetie to insult mode', function() {
+        backend._fakeMessage('Hello', 'sweetie');
+
+        return continueImmediate(() => {
+            assert.include(texts.sweet.morning, backend._lastReceived('sweetie'));
+
+            backend._fakeMessage('be naughty to me', 'sweetie');
+            backend._fakeMessage('give it to me', 'sweetie');
+            return continueImmediate(() => {
+                assert.include(texts.insult.morning, backend._lastReceived('sweetie'));
+            });
+        });
+    });
+
+    test('switching bitch to sweet mode', function() {
+        backend._fakeMessage('Hello', 'bitch');
+
+        return continueImmediate(() => {
+            assert.include(texts.insult.morning, backend._lastReceived('bitch'));
+
+            backend._fakeMessage('be nice to me', 'bitch');
+            backend._fakeMessage('give it to me', 'bitch');
+            return continueImmediate(() => {
+                assert.include(texts.sweet.morning, backend._lastReceived('bitch'));
+            });
+        });
+    });
+});
+
 suite('Special Messages', function() {
     let config = {
         username: 'mockbot',
