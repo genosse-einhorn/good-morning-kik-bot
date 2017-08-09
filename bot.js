@@ -220,7 +220,7 @@ module.exports = class GreetingBot {
 
         // Morning in Europe
         this.cron({ on: '0 7 * * *', timezone: 'Europe/Berlin' }, () => {
-            console.log('Starting morning greetings in Europe at ' + (new Date()));
+            this.debug('Starting morning greetings in Europe at ' + (new Date()));
             for (let user of this.config.recipients) {
                 if (this.getUserTimezone(user) != 'de')
                     continue;
@@ -231,7 +231,7 @@ module.exports = class GreetingBot {
 
         // Morning in L.A.
         this.cron({ on: '0 7 * * *', timezone: 'America/Los_Angeles' }, () => {
-            console.log('Starting morning greetings in LA at ' + (new Date()));
+            this.debug('Starting morning greetings in LA at ' + (new Date()));
             for (let user of this.config.recipients) {
                 if (this.getUserTimezone(user) != 'la')
                     continue;
@@ -242,7 +242,7 @@ module.exports = class GreetingBot {
 
         // Evening Texts
         this.cron({ on: '0 20 * * *', timezone: 'Europe/Berlin' }, () => {
-            console.log('Starting evening greetings in Europe at ' + (new Date()));
+            this.debug('Starting evening greetings in Europe at ' + (new Date()));
             for (let user of this.config.recipients) {
                 if (this.getUserTimezone(user) != 'de')
                     continue;
@@ -252,7 +252,7 @@ module.exports = class GreetingBot {
         });
 
         this.cron({ on: '0 20 * * *', timezone: 'America/Los_Angeles' }, () => {
-            console.log('Starting evening greetings in LA at ' + (new Date()));
+            this.debug('Starting evening greetings in LA at ' + (new Date()));
             for (let user of this.config.recipients) {
                 if (this.getUserTimezone(user) != 'la')
                     continue;
