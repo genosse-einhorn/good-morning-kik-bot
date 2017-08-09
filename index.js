@@ -27,20 +27,6 @@ for (let mode in texts) {
         texts[mode]['night'] = texts[mode]['morning'];
 }
 
-if (!URL) {
-    let ngrok = require('ngrok');
-
-    // Auto-ngrok for local debugging
-    ngrok.connect(PORT, (err, url) => {
-        if (err) throw err;
-
-        URL = url;
-        startBot();
-    });
-} else {
-    startBot();
-}
-
 process.on('unhandledRejection', (reason, promise) => {
     console.error('unhadled rejection!:');
     console.error(reason);
@@ -124,4 +110,19 @@ function startBot() {
         console.log('Time travel activated! now skipping one hour');
         clock.tick('01:00:00');
     }
+}
+
+
+if (!URL) {
+    let ngrok = require('ngrok');
+
+    // Auto-ngrok for local debugging
+    ngrok.connect(PORT, (err, url) => {
+        if (err) throw err;
+
+        URL = url;
+        startBot();
+    });
+} else {
+    startBot();
 }
