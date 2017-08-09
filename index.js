@@ -2,12 +2,11 @@
 'use strict';
 
 let util = require('util');
-let schedule = require('node-schedule');
+let cron = require('cron-scheduler');
 let fs = require('fs');
 let KikBot  = require('@kikinteractive/kik');
 let EventEmitter = require('events').EventEmitter;
 let http = require('http');
-
 
 let OurBot = require('./bot');
 
@@ -115,7 +114,7 @@ function startBot() {
         config: config,
         texts: texts,
         backend: new KikBackend(),
-        schedule: schedule,
+        cron: cron,
         debug: debug
     });
 

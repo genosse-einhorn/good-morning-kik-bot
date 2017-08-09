@@ -1,6 +1,6 @@
 const assert = require('chai').assert;
 const EventEmitter = require('events').EventEmitter;
-const schedule = require('node-schedule');
+const realCron = require('cron-scheduler');
 const lolex = require('lolex');
 const moment = require('moment-timezone');
 
@@ -69,9 +69,16 @@ class MockBackend extends EventEmitter {
     }
 }
 
-const nullSchedule = {
-    scheduleJob() { /* NOP */ }
-};
+const nullCron = function() {};
+const cron = function() {
+    cron.jobs.push(realCron.apply(this, arguments));
+}
+cron.jobs = [];
+cron.cancelAll = function() {
+    cron.jobs.forEach(j => j.stop());
+    cron.jobs = [];
+}
+
 
 
 function continueImmediate(func) {
@@ -91,7 +98,7 @@ suite('Welcome Message', function() {
         let config = {username:'mockbot'};
         let texts = {};
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:nullSchedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:nullCron, debug:()=>{}});
         bot.start();
 
         backend._fakeStartChatting('blub');
@@ -120,7 +127,7 @@ suite('Messages on demand', function() {
         }
     };
     let backend = new MockBackend();
-    let bot = new Bot({config:config, texts:texts, backend:backend, schedule:nullSchedule, debug:()=>{}});
+    let bot = new Bot({config:config, texts:texts, backend:backend, cron:nullCron, debug:()=>{}});
     bot.start();
 
     test('Sweet Text #1', function() {
@@ -239,7 +246,7 @@ suite('Messages on time', function() {
     test('sweet morning text', function() {
         clock = lolex.install(moment.tz('2017-08-09 06:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('01:01:00');
@@ -250,7 +257,7 @@ suite('Messages on time', function() {
     test('insulting morning text', function() {
         clock = lolex.install(moment.tz('2017-08-09 06:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('01:01:00');
@@ -261,7 +268,7 @@ suite('Messages on time', function() {
     test('sweet night text', function() {
         clock = lolex.install(moment.tz('2017-08-09 19:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('02:01:00');
@@ -272,7 +279,7 @@ suite('Messages on time', function() {
     test('insulting night text', function() {
         clock = lolex.install(moment.tz('2017-08-09 19:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('02:01:00');
@@ -281,9 +288,7 @@ suite('Messages on time', function() {
     });
 
     afterEach(function() {
-        for (let name in schedule.scheduledJobs) {
-            schedule.scheduledJobs[name].cancel();
-        }
+        cron.cancelAll();
 
         if (clock) {
             clock.uninstall();
@@ -310,7 +315,7 @@ suite('Commands', function() {
         }
     };
     let backend = new MockBackend();
-    let bot = new Bot({config:config, texts:texts, backend:backend, schedule:nullSchedule, debug:()=>{}});
+    let bot = new Bot({config:config, texts:texts, backend:backend, cron:nullCron, debug:()=>{}});
     bot.start();
 
     test('switching sweetie to insult mode', function() {
@@ -347,7 +352,7 @@ suite('Commands', function() {
             config.recipient_modes['sweetie'] = 'sweet';
             config.texts_sent = [];
             let backend = new MockBackend();
-            let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+            let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
             bot.start();
 
             clock.tick('00:00:02');
@@ -358,6 +363,7 @@ suite('Commands', function() {
             assert.isNotNull(backend._lastReceived('sweetie'));
         } finally {
             clock.uninstall();
+            cron.cancelAll();
         }
     });
 
@@ -367,7 +373,7 @@ suite('Commands', function() {
             config.recipient_modes['sweetie'] = 'sweet';
             config.night_texts_sent = [];
             let backend = new MockBackend();
-            let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+            let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
             bot.start();
 
             clock.tick('00:00:02');
@@ -378,6 +384,7 @@ suite('Commands', function() {
             assert.isNotNull(backend._lastReceived('sweetie'));
         } finally {
             clock.uninstall();
+            cron.cancelAll();
         }
     });
 
@@ -421,7 +428,7 @@ suite('Special Messages', function() {
     test('Christmas Special 2017', function() {
         clock = lolex.install(moment.tz('2017-12-24 17:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('01:01:00');
@@ -434,7 +441,7 @@ suite('Special Messages', function() {
     test('Christmas Special 2018', function() {
         clock = lolex.install(moment.tz('2018-12-24 17:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('01:01:00');
@@ -447,11 +454,12 @@ suite('Special Messages', function() {
     test('New Year Special 2018', function() {
         clock = lolex.install(moment.tz('2017-12-31 23:00:00', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('02:01:00');
 
+        assert.equal(backend._receivedMessages['sweetie'].length, 1);
         assert.notInclude(texts.sweet.morning, backend._lastReceived('sweetie'));
         assert.notInclude(texts.sweet.night, backend._lastReceived('sweetie'));
         assert.isNotNull(backend._lastReceived('sweetie'));
@@ -460,7 +468,7 @@ suite('Special Messages', function() {
     test('Birthday Special 2017 for sunny', function() {
         clock = lolex.install(moment.tz('2017-12-10 06:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('02:01:00');
@@ -474,7 +482,7 @@ suite('Special Messages', function() {
     test('Birthday Special 2018 for sunny', function() {
         clock = lolex.install(moment.tz('2018-12-10 06:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('02:01:00');
@@ -488,7 +496,7 @@ suite('Special Messages', function() {
     test('Valentine\'s Day Special 2018', function() {
         clock = lolex.install(moment.tz('2018-02-14 06:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('02:01:00');
@@ -500,9 +508,7 @@ suite('Special Messages', function() {
     })
 
     afterEach(function() {
-        for (let name in schedule.scheduledJobs) {
-            schedule.scheduledJobs[name].cancel();
-        }
+        cron.cancelAll();
 
         if (clock) {
             clock.uninstall();

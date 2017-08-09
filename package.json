@@ -10,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "@kikinteractive/kik": "^2.0.12",
-    "node-schedule": "^1.2.0"
+    "cron-scheduler": "rgcjonas/cron-scheduler",
+    "moment-timezone": "^0.5.13"
   },
   "devDependencies": {
     "chai": "^4.1.1",

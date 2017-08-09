@@ -1,19 +1,21 @@
 'use strict';
 
-function todayIs(year, month, day) {
-    let today = new Date();
+const moment = require('moment-timezone');
 
-    return (today.getFullYear() == year || year == 0)
-        && today.getMonth() == month-1
-        && today.getDate() == day;
+function todayIs(year, month, day) {
+    let today = moment.tz('Europe/Berlin');
+
+    return (today.year() == year || year == 0)
+        && today.month() == month-1
+        && today.date() == day;
 }
 
 module.exports = class GreetingBot {
-    constructor({config, texts, backend, schedule, debug}) {
+    constructor({config, texts, backend, cron, debug}) {
         this.config = config;
         this.texts = texts;
         this.bot = backend;
-        this.schedule = schedule;
+        this.cron = cron;
         this.debug = debug;
     }
 
@@ -203,28 +205,28 @@ module.exports = class GreetingBot {
             }
         });
 
-        this.schedule.scheduleJob('0 7 * * *', () => {
+        this.cron({ on: '0 7 * * *', timezone: 'Europe/Berlin' }, () => {
             for (let user of this.config.recipients) {
                 setTimeout(() => this.sendMorningText(user), 3600*1000 /* 1h */);
             }
         });
 
         // Evening Texts
-        this.schedule.scheduleJob('0 20 * * *', () => {
+        this.cron({ on: '0 20 * * *', timezone: 'Europe/Berlin' }, () => {
             for (let user of this.config.recipients) {
                 setTimeout(() => this.sendEveningText(user), 3600*2000 /* 2h */);
             }
         });
 
         // Christmas Special
-        this.schedule.scheduleJob('0 18 24 12 *', () => {
+        this.cron({ on: '0 18 24 12 *', timezone: 'Europe/Berlin' }, () => {
             for (let user of this.config.recipients) {
                 this.sendWithDelay("Merry Christmas, Beautiful!", user, 30*60*1000 /* 30min */)
             }
         });
 
         // Ney Year Special
-        this.schedule.scheduleJob('5 0 1 1 *', () => {
+        this.cron({ on: '5 0 1 1 *', timezone: 'Europe/Berlin' }, () => {
             for (let user of this.config.recipients) {
                 this.sendWithDelay("Happy New Year, My Angel <3", user, 5*60*1000 /* 5 min */);
             }
