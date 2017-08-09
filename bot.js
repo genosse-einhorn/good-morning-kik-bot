@@ -110,6 +110,16 @@ module.exports = class GreetingBot {
     }
 
     start() {
+        this.bot.onStartChattingMessage((message) => {
+            this.bot.getUserProfile(message.from)
+                .then((user) => {
+                    this.debug(`${message.from} started chatting!`);
+                    message.reply(`Hey ${user.firstName}! Do you want to receive a `+
+                        `good morning message every day? Then reply "Yes I do"`
+                    );
+                });
+        });
+
         this.bot.onTextMessage((message) => {
             if (this.saveRecipient(message.from)) {
                 message.reply(['Congratulations! You will now receive good morning texts!',

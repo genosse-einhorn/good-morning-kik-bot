@@ -28,6 +28,18 @@ class MockBackend extends EventEmitter {
         return Promise.resolve(null);
     }
 
+    getUserProfile(nickname) {
+        return Promise.resolve({
+            displayName: 'Mock User',
+            username: nickname,
+            firstName: 'Mock',
+            lastName: 'User',
+            profilePicUrl: 'http://example.com/',
+            profilePicLastModified: 0,
+            timezone: 'Europe/London'
+        });
+    }
+
     _fakeMessage(text, sender) {
         let message = {
             body: text,
@@ -55,14 +67,35 @@ class MockBackend extends EventEmitter {
     }
 }
 
+const nullSchedule = {
+    scheduleJob() { /* NOP */ }
+};
+
+
+function continueImmediate(func) {
+    return new Promise((resolve, reject) => {
+        setImmediate(() => {
+            try {
+                resolve(func());
+            } catch (e) {
+                reject(e);
+            }
+        })
+    });
+}
+
 suite('Welcome Message', function() {
     test('receiving welcome message', function() {
-        let config = {};
+        let config = {username:'mockbot'};
         let texts = {};
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:nullSchedule, debug:()=>{}});
+        bot.start();
 
         backend._fakeStartChatting('blub');
-        assert.isTrue(backend._lastReceived('blub'));
+
+        return continueImmediate(() => {
+            assert.isOk(backend._lastReceived('blub'));
+        });
     });
 });
