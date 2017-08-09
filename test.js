@@ -468,6 +468,35 @@ suite('Special Messages', function() {
         assert.notInclude(texts.sweet.morning, backend._lastReceived('sunny3964'));
         assert.notInclude(texts.sweet.night, backend._lastReceived('sunny3964'));
         assert.isNotNull(backend._lastReceived('sunny3964'));
+        assert.match(backend._lastReceived('sunny3964'), /birthday/i);
+    })
+
+    test('Birthday Special 2018 for sunny', function() {
+        clock = lolex.install(moment.tz('2018-12-10 06:59:59', 'Europe/Berlin').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        bot.start();
+
+        clock.tick('02:01:00');
+
+        assert.notInclude(texts.sweet.morning, backend._lastReceived('sunny3964'));
+        assert.notInclude(texts.sweet.night, backend._lastReceived('sunny3964'));
+        assert.isNotNull(backend._lastReceived('sunny3964'));
+        assert.match(backend._lastReceived('sunny3964'), /birthday/i);
+    })
+
+    test('Valentine\'s Day Special 2018', function() {
+        clock = lolex.install(moment.tz('2018-02-14 06:59:59', 'Europe/Berlin').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:config, texts:texts, backend:backend, schedule:schedule, debug:()=>{}});
+        bot.start();
+
+        clock.tick('02:01:00');
+
+        assert.notInclude(texts.sweet.morning, backend._lastReceived('sweetie'));
+        assert.notInclude(texts.sweet.night, backend._lastReceived('sweetie'));
+        assert.isNotNull(backend._lastReceived('sweetie'));
+        assert.match(backend._lastReceived('sweetie'), /date/i);
     })
 
     afterEach(function() {

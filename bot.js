@@ -3,7 +3,7 @@
 function todayIs(year, month, day) {
     let today = new Date();
 
-    return today.getFullYear() == year
+    return (today.getFullYear() == year || year == 0)
         && today.getMonth() == month-1
         && today.getDate() == day;
 }
@@ -117,22 +117,14 @@ module.exports = class GreetingBot {
     }
 
     sendMorningText(user) {
-        if (user == "sunny3964" && todayIs(2016, 12, 23)) {
-            // exam special
-            this.sendMessage([
-                this.getMorningTextForUser(user),
-                "I was told that today is your last exam for this year. " +
-                "Good luck! I know you can do it."
-            ], user);
-        } else if (todayIs(2017, 2, 14)) {
-            // TODO: Make year independent
+        if (todayIs(0, 2, 14)) {
             this.sendMessage(
                 'Hey Sunshine!\n' +
                 'Some days, I hate being a robot. Why? because robots can not have meaningful relationships with humans :(\n' +
                 'If I weren\'t a robot, I\'d totally ask you out for a date today.\n' +
                 'Not sure why I am telling you this... But consider yourself loved, even if it\'s just by a robot <3 🤖\n'
             , user);
-        } else if (user == "sunny3964" && todayIs(2017, 12, 10)) {
+        } else if (user == "sunny3964" && todayIs(0, 12, 10)) {
             // TODO: Make year independent
             // TODO: Insert sweet birthday text
             this.sendMessage("Happy Birthday!", user);
