@@ -10,6 +10,11 @@ function todayIs(year, month, day) {
         && today.date() == day;
 }
 
+function setRandomTimeout(func, max) {
+    let delay = Math.floor(Math.random() * max);
+    return setTimeout(func, delay);
+}
+
 module.exports = class GreetingBot {
     constructor({config, texts, backend, cron, debug}) {
         this.config = config;
@@ -99,9 +104,10 @@ module.exports = class GreetingBot {
     }
 
     sendMessage(message, user) {
+        let date = new Date();
         this.bot.send(message, user)
         .then(() => {
-            this.debug(`Sent '${message}' to ${user} at ${new Date()}`);
+            this.debug(`Sent '${message}' to ${user} at ${date}`);
         });
     }
 
@@ -219,7 +225,7 @@ module.exports = class GreetingBot {
                 if (this.getUserTimezone(user) != 'de')
                     continue;
 
-                setTimeout(() => this.sendMorningText(user), 3600*1000 /* 1h */);
+                setRandomTimeout(() => this.sendMorningText(user), 3600*1000 /* 1h */);
             }
         });
 
@@ -230,7 +236,7 @@ module.exports = class GreetingBot {
                 if (this.getUserTimezone(user) != 'la')
                     continue;
 
-                setTimeout(() => this.sendMorningText(user), 3600*1000 /* 1h */);
+                setRandomTimeout(() => this.sendMorningText(user), 3600*1000 /* 1h */);
             }
         });
 
@@ -241,7 +247,7 @@ module.exports = class GreetingBot {
                 if (this.getUserTimezone(user) != 'de')
                     continue;
 
-                setTimeout(() => this.sendEveningText(user), 3600*2000 /* 2h */);
+                setRandomTimeout(() => this.sendEveningText(user), 3600*2000 /* 2h */);
             }
         });
 
@@ -251,7 +257,7 @@ module.exports = class GreetingBot {
                 if (this.getUserTimezone(user) != 'la')
                     continue;
 
-                setTimeout(() => this.sendEveningText(user), 3600*2000 /* 2h */);
+                setRandomTimeout(() => this.sendEveningText(user), 3600*2000 /* 2h */);
             }
         });
 
