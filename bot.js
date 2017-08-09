@@ -300,6 +300,22 @@ module.exports = class GreetingBot {
             }
         });
 
+        // Changing timezone on flight days for sunny
+        this.cron({ on: '0 12 19 8 *', timezone: 'Europe/Berlin' }, () => {
+            if (!this.config.recipient_timezones)
+                this.config.recipient_timezones = {};
+
+            this.config.recipient_timezones['sunny3964'] = 'la';
+            this.config.persist();
+        });
+        this.cron({ on: '0 12 21 12 *', timezone: 'America/Los_Angeles' }, () => {
+            if (!this.config.recipient_timezones)
+                this.config.recipient_timezones = {};
+
+            this.config.recipient_timezones['sunny3964'] = 'de';
+            this.config.persist();
+        });
+
         this.debug(`${this.config.username} has started, registed users: ${(this.config.recipients || []).join(', ')}`);
     }
 

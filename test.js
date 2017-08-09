@@ -672,6 +672,32 @@ suite('Special Messages', function() {
         assert.isNotNull(backend._lastReceived('sunny3964'));
         assert.match(backend._lastReceived('sunny3964'), /flight/i);
     })
+    test('Timezone entry for sunny changes during flight days (de->us)', function() {
+        let _cfg = JSON.parse(JSON.stringify(config));
+        _cfg.persist = function() {};
+        clock = lolex.install(moment.tz('2017-08-19 06:00:00', 'Europe/Berlin').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        bot.start();
+
+        clock.tick('12:01:00');
+
+        assert.equal(_cfg.recipient_timezones['sunny3964'], 'la');
+    });
+
+    test('Timezone entry for sunny changes during flight days (us->de)', function() {
+        let _cfg = JSON.parse(JSON.stringify(config));
+        _cfg.persist = function() {};
+        _cfg.recipient_timezones = { 'sunny3964': 'la' };
+        clock = lolex.install(moment.tz('2017-12-21 06:00:00', 'America/Los_Angeles').toDate());
+        let backend = new MockBackend();
+        let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        bot.start();
+
+        clock.tick('12:01:00');
+
+        assert.equal(_cfg.recipient_timezones['sunny3964'], 'de');
+    });
 
     afterEach(function() {
         cron.cancelAll();
