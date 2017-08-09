@@ -389,6 +389,14 @@ suite('Commands', function() {
             assert.notInclude(config.recipients, 'blub');
         });
     });
+
+    test('get timezone', function() {
+        backend._fakeMessage('What is my timezone?', 'sweetie');
+
+        return continueImmediate(() => {
+            assert.match(backend._lastReceived('sweetie'), /Europe\/London/);
+        });
+    });
 });
 
 suite('Special Messages', function() {

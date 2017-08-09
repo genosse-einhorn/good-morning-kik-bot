@@ -196,6 +196,11 @@ module.exports = class GreetingBot {
                 .then(() => {
                     this.debug(`${message.from} has left us :(`);
                 });
+            } else if (message.body.match(/^what is my timezone\??$/i)) {
+                this.bot.getUserProfile(message.from)
+                .then(profile => {
+                    return this.bot.send('Your timezone is: ' + profile.timezone, message.from)
+                });
             } else {
                 let text = this.getMorningTextForUser(message.from);
                 this.bot.send(["Can't wait until morning? Here's a text for you:", text], message.from)

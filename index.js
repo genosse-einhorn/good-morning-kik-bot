@@ -87,6 +87,10 @@ class KikBackend extends EventEmitter {
         this.on('start-chatting', func);
     }
 
+    getUserProfile(username) {
+        return this.bot.getUserProfile(username);
+    }
+
     send(message, recipient) {
         return this.bot.send(message, recipient);
     }
