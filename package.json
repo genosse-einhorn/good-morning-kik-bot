@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --ui tdd"
   },
   "author": "",
   "license": "ISC",
@@ -13,7 +13,9 @@
     "node-schedule": "^1.2.0"
   },
   "devDependencies": {
-    "ngrok": "^2.2.4",
-    "lolex": "^1.5.2"
+    "chai": "^4.1.1",
+    "lolex": "^1.5.2",
+    "mocha": "^3.5.0",
+    "ngrok": "^2.2.4"
   }
 }
