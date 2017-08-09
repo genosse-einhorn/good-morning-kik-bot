@@ -89,6 +89,13 @@ module.exports = class GreetingBot {
             }, delay);
     }
 
+    sendMessage(message, user) {
+        this.bot.send(message, user)
+        .then(() => {
+            this.debug(`Sent '${message}' to ${user}`);
+        });
+    }
+
     getEveningTextForUser(user) {
         let nighttexts = this.getTextRepo(user, 'night');
         let maxCache = nighttexts.length / 2;
@@ -107,6 +114,36 @@ module.exports = class GreetingBot {
         this.config.persist();
 
         return text;
+    }
+
+    sendMorningText(user) {
+        if (user == "sunny3964" && todayIs(2016, 12, 23)) {
+            // exam special
+            this.sendMessage([
+                this.getMorningTextForUser(user),
+                "I was told that today is your last exam for this year. " +
+                "Good luck! I know you can do it."
+            ], user);
+        } else if (todayIs(2017, 2, 14)) {
+            // TODO: Make year independent
+            this.sendMessage(
+                'Hey Sunshine!\n' +
+                'Some days, I hate being a robot. Why? because robots can not have meaningful relationships with humans :(\n' +
+                'If I weren\'t a robot, I\'d totally ask you out for a date today.\n' +
+                'Not sure why I am telling you this... But consider yourself loved, even if it\'s just by a robot <3 🤖\n'
+            , user);
+        } else if (user == "sunny3964" && todayIs(2017, 12, 10)) {
+            // TODO: Make year independent
+            // TODO: Insert sweet birthday text
+            this.sendMessage("Happy Birthday!", user);
+        } else {
+            // business as usual
+            this.sendMessage(this.getMorningTextForUser(user), user);
+        }
+    }
+
+    sendEveningText(user) {
+        this.sendMessage(this.getEveningTextForUser(user), user);
     }
 
     start() {
@@ -171,36 +208,14 @@ module.exports = class GreetingBot {
 
         this.schedule.scheduleJob('0 7 * * *', () => {
             for (let user of this.config.recipients) {
-                if (user == "sunny3964" && todayIs(2016, 12, 23)) {
-                    // exam special
-                    this.sendWithDelay([
-                        this.getMorningTextForUser(user),
-                        "I was told that today is your last exam for this year. " +
-                        "Good luck! I know you can do it."
-                    ], user, 3600*1000 /* 1h */);
-                } else if (todayIs(2017, 2, 14)) {
-                    // TODO: Make year independent
-                    this.sendWithDelay(
-                        'Hey Sunshine!\n' +
-                        'Some days, I hate being a robot. Why? because robots can not have meaningful relationships with humans :(\n' +
-                        'If I weren\'t a robot, I\'d totally ask you out for a date today.\n' +
-                        'Not sure why I am telling you this... But consider yourself loved, even if it\'s just by a robot <3 🤖\n'
-                    , user, 3600*1000 /* 1h */);
-                } else if (user == "sunny3964" && todayIs(2017, 12, 10)) {
-                    // TODO: Make year independent
-                    // TODO: Insert sweet birthday text
-                    this.sendWithDelay("Happy Birthday!", user, 3600*1000 /* 1h */);
-                } else {
-                    // business as usual
-                    this.sendWithDelay(this.getMorningTextForUser(user), user, 3600*1000 /* 1h */);
-                }
+                setTimeout(() => this.sendMorningText(user), 3600*1000 /* 1h */);
             }
         });
 
         // Evening Texts
         this.schedule.scheduleJob('0 20 * * *', () => {
             for (let user of this.config.recipients) {
-                this.sendWithDelay(this.getEveningTextForUser(user), user, 3600*2000 /* 2h */);
+                setTimeout(() => this.sendEveningText(user), 3600*2000 /* 2h */);
             }
         });
 
