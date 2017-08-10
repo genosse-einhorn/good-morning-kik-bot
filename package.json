@@ -9,15 +9,15 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@kikinteractive/kik": "^2.0.12",
-    "cron-scheduler": "rgcjonas/cron-scheduler",
+    "@kikinteractive/kik": "^2.2.1",
+    "cron-scheduler": "1.2.0",
     "moment-timezone": "^0.5.13"
   },
   "devDependencies": {
     "chai": "^4.1.1",
-    "lolex": "^1.5.2",
+    "lolex": "^1.6.0",
     "mocha": "^3.5.0",
     "moment-timezone": "^0.5.13",
-    "ngrok": "^2.2.4"
+    "ngrok": "^2.2.17"
   }
 }
