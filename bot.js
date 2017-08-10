@@ -301,7 +301,7 @@ module.exports = class GreetingBot {
         });
 
         // Changing timezone on flight days for sunny
-        this.cron({ on: '0 12 19 8 *', timezone: 'Europe/Berlin' }, () => {
+        this.cron({ on: '0 19 19 8 *', timezone: 'Europe/Berlin' }, () => {
             if (!this.config.recipient_timezones)
                 this.config.recipient_timezones = {};
 

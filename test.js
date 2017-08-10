@@ -643,60 +643,71 @@ suite('Special Messages', function() {
         assert.match(backend._lastReceived('sweetie'), /date/i);
     })
 
-    test('Sunny flying to LA special', function() {
+    test('Sunny flying to LA special (w/ timezone change)', function() {
+        let _cfg = JSON.parse(JSON.stringify(config));
+        _cfg.persist = function() {};
         clock = lolex.install(moment.tz('2017-08-19 06:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
-        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
+
+        _cfg.texts_sent['sunny3964'] = [];
 
         clock.tick('02:01:00');
 
+        // 9:01 in Europe // 0:01 in L.A.: Sunny has received a customized morning text
         assert.notInclude(texts.sweet.morning, backend._lastReceived('sunny3964'));
         assert.notInclude(texts.sweet.night, backend._lastReceived('sunny3964'));
         assert.isNotNull(backend._lastReceived('sunny3964'));
         assert.match(backend._lastReceived('sunny3964'), /flight/i);
+
+        // when flying to America, Sunny will gain 9 hours and therefore be eligible
+        // for a good night message in L.A. time
+
+        clock.tick('19:50:00');
+        // 4.51+1 in Europe // 19:51 in L.A.: Sunny has been changed to LA timezone
+        // but has not received any new texts yet
+        assert.equal(_cfg.recipient_timezones['sunny3964'], 'la');
+        assert.equal(backend._receivedMessages['sunny3964'].length, 1);
+
+        clock.tick('02:11:00');
+        // 7:01+1 in Europe // 22:01 in LA: Sunny has received evening greetings
+        assert.equal(backend._receivedMessages['sunny3964'].length, 2);
+        assert.include(texts.sweet.night, backend._lastReceived('sunny3964'));
+
     })
 
-    test('Sunny flying back from LA special', function() {
+    test('Sunny flying back from LA special (w/ timezone change)', function() {
         let _cfg = JSON.parse(JSON.stringify(config));
         _cfg.recipient_timezones = { 'sunny3964': 'la' };
+        _cfg.persist = function() {};
         clock = lolex.install(moment.tz('2017-12-21 06:59:59', 'America/Los_Angeles').toDate());
         let backend = new MockBackend();
         let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
 
         clock.tick('02:01:00');
-
+        // 9:01 in L.A. // 18:00 in Europe: Sunny has received a customized text
         assert.notInclude(texts.sweet.morning, backend._lastReceived('sunny3964'));
         assert.notInclude(texts.sweet.night, backend._lastReceived('sunny3964'));
         assert.isNotNull(backend._lastReceived('sunny3964'));
         assert.match(backend._lastReceived('sunny3964'), /flight/i);
-    })
-    test('Timezone entry for sunny changes during flight days (de->us)', function() {
-        let _cfg = JSON.parse(JSON.stringify(config));
-        _cfg.persist = function() {};
-        clock = lolex.install(moment.tz('2017-08-19 06:00:00', 'Europe/Berlin').toDate());
-        let backend = new MockBackend();
-        let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:()=>{}});
-        bot.start();
+        assert.equal(backend._receivedMessages['sunny3964'].length, 1);
 
-        clock.tick('12:01:00');
+        // when flying back to europe, sunny will skip 9 hours + the flight time.
+        // the best we can do is send her the european good morning message, which may or may not
+        // be actually appropriate depending on the actual flight.
 
-        assert.equal(_cfg.recipient_timezones['sunny3964'], 'la');
-    });
-
-    test('Timezone entry for sunny changes during flight days (us->de)', function() {
-        let _cfg = JSON.parse(JSON.stringify(config));
-        _cfg.persist = function() {};
-        _cfg.recipient_timezones = { 'sunny3964': 'la' };
-        clock = lolex.install(moment.tz('2017-12-21 06:00:00', 'America/Los_Angeles').toDate());
-        let backend = new MockBackend();
-        let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:()=>{}});
-        bot.start();
-
-        clock.tick('12:01:00');
-
+        clock.tick('12:00:00');
+        // 21:00 in L.A. // 6:00+1 in Europe: Sunny has been switched over to Berlin time
+        // but has not received any texts yet
         assert.equal(_cfg.recipient_timezones['sunny3964'], 'de');
+        assert.equal(backend._receivedMessages['sunny3964'].length, 1);
+
+        clock.tick('03:00:00');
+        // 00:00+1 in L.A. // 9:00+1 in Europe: Sunny has received a good morning message
+        assert.equal(backend._receivedMessages['sunny3964'].length, 2);
+        assert.include(texts.sweet.morning, backend._lastReceived('sunny3964'));
     });
 
     afterEach(function() {
