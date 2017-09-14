@@ -160,9 +160,6 @@ module.exports = class GreetingBot {
             this.sendMessage("Happy Birthday!", user);
         } else if (user == "sunny3964" && todayIs(2017, 8, 19)) {
             this.sendMessage("Have a safe flight and a fun exchange semester in the U.S.! ✈️ 🇺🇸", user);
-        } else if (user == "sunny3964" && todayIs(2017, 12, 21)) {
-            this.sendMessage("Your're flying home today, right? I wish you a safe flight! ✈️ " +
-                "I'm sure people at home are waiting for you :)", user);
         } else {
             // business as usual
             this.sendMessage(this.getMorningTextForUser(user), user);
@@ -300,14 +297,7 @@ module.exports = class GreetingBot {
             }
         });
 
-        // Changing timezone on flight days for sunny
-        this.cron({ on: '0 19 19 8 *', timezone: 'Europe/Berlin' }, () => {
-            if (!this.config.recipient_timezones)
-                this.config.recipient_timezones = {};
-
-            this.config.recipient_timezones['sunny3964'] = 'la';
-            this.config.persist();
-        });
+        // Changing timezone when sunny comes back
         this.cron({ on: '0 12 21 12 *', timezone: 'America/Los_Angeles' }, () => {
             if (!this.config.recipient_timezones)
                 this.config.recipient_timezones = {};
