@@ -90,7 +90,11 @@ function continueImmediate(func) {
     return new Promise((resolve, reject) => {
         setImmediate(() => {
             try {
-                resolve(func());
+                if (typeof func !== 'undefined') {
+                    resolve(func());
+                } else {
+                    resolve(func);
+                }
             } catch (e) {
                 reject(e);
             }
@@ -421,6 +425,32 @@ suite('Messages on time', function() {
         assert.isNull(backend._lastReceived('bitch'));
     });
 
+    test('multiple texts over two days)', function() {
+        clock = lolex.install(moment.tz('2017-08-09 19:59:59', 'Europe/Berlin').toDate(), ["setTimeout", "clearTimeout", "setInterval", "clearInterval", "Date"]);
+        let backend = new MockBackend();
+        let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:() => {}});
+        bot.start();
+
+        config.texts_sent['bitch'] = [];
+
+        clock.tick('02:01:00'); // 22:00
+        assert.include(texts.insult.night, backend._lastReceived('bitch'));
+        assert.equal(backend._receivedMessages['bitch'].length, 1);
+
+        return continueImmediate().then(() => {
+            clock.tick('12:00:00'); // 12:00+1
+            assert.include(texts.insult.morning, backend._lastReceived('bitch'));
+            assert.equal(backend._receivedMessages['bitch'].length, 2);
+
+            return continueImmediate();
+        }).then(() => {
+            console.log('waiting another 12h at ' + new Date());
+            clock.tick('12:00:00'); // 22:00+1
+            assert.equal(backend._receivedMessages['bitch'].length, 3);
+            assert.include(texts.insult.night, backend._lastReceived('bitch'));
+        });
+    });
+
     afterEach(function() {
         cron.cancelAll();
 
@@ -647,31 +677,45 @@ suite('Special Messages', function() {
         let _cfg = JSON.parse(JSON.stringify(config));
         _cfg.recipient_timezones = { 'sunny3964': 'la' };
         _cfg.persist = function() {};
-        clock = lolex.install(moment.tz('2017-12-21 06:59:59', 'America/Los_Angeles').toDate());
+        clock = lolex.install(moment.tz('2017-12-21 06:59:59', 'America/Los_Angeles').toDate(), ["setTimeout", "clearTimeout", "setInterval", "clearInterval", "Date"]);
         let backend = new MockBackend();
-        let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:()=>{}});
+        let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:() => {}});
         bot.start();
+
+        // Sunny flies back on Thu, Dec 21 / Fri, Dec 22, arriving around 8PM in DE
 
         clock.tick('02:01:00');
         // 9:01 in L.A. // 18:00 in Europe: Sunny has received a good morning text
         assert.include(texts.sweet.morning, backend._lastReceived('sunny3964'));
         assert.isNotNull(backend._lastReceived('sunny3964'));
         assert.equal(backend._receivedMessages['sunny3964'].length, 1);
+        return continueImmediate(() => {
 
-        // when flying back to europe, sunny will skip 9 hours + the flight time.
-        // the best we can do is send her the european good morning message, which may or may not
-        // be actually appropriate depending on the actual flight.
+            // sunny will board the flight on thu evening, and arrive fri evening
+            // when flying back to europe, sunny will skip 9 hours + the flight time.
+            // we have no idea when to send a useful good morning text, so we'll just skip
+            // that and deliver the next evening text in DE
 
-        clock.tick('12:00:00');
-        // 21:00 in L.A. // 6:00+1 in Europe: Sunny has been switched over to Berlin time
-        // but has not received any texts yet
-        assert.equal(_cfg.recipient_timezones['sunny3964'], 'de');
-        assert.equal(backend._receivedMessages['sunny3964'].length, 1);
+            clock.tick('13:00:00');
+            // 22:00 in L.A. // 7:00+1 in Europe: Sunny has received a goodnight text still in LA timezone
+            assert.equal(_cfg.recipient_timezones['sunny3964'], 'la');
+            assert.equal(backend._receivedMessages['sunny3964'].length, 2);
+            assert.include(texts.sweet.night, backend._lastReceived('sunny3964'));
+            return continueImmediate();
+        }).then(() => {
+            clock.tick('03:00:00');
+            // 01:00+1 in L.A. // 10:00+1 in Europe: Sunny has not received anything new
+            assert.equal(backend._receivedMessages['sunny3964'].length, 2);
 
-        clock.tick('03:00:00');
-        // 00:00+1 in L.A. // 9:00+1 in Europe: Sunny has received a good morning message
-        assert.equal(backend._receivedMessages['sunny3964'].length, 2);
-        assert.include(texts.sweet.morning, backend._lastReceived('sunny3964'));
+            return continueImmediate();
+        }).then(() => {
+            clock.tick('12:00:00');
+
+            // 13:00+1 in L.A. // 22:00+1 in Europe: Sunny has received a goodnight text in european time
+            assert.equal(_cfg.recipient_timezones['sunny3964'], 'de');
+            assert.equal(backend._receivedMessages['sunny3964'].length, 3);
+            assert.include(texts.sweet.night, backend._lastReceived('sunny3964'));
+        });
     });
 
     afterEach(function() {

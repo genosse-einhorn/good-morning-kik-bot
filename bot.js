@@ -282,7 +282,6 @@ module.exports = class GreetingBot {
             }
         });
 
-
         // Christmas Special
         this.cron({ on: '0 18 24 12 *', timezone: 'Europe/Berlin' }, () => {
             for (let user of this.config.recipients) {
@@ -298,12 +297,14 @@ module.exports = class GreetingBot {
         });
 
         // Changing timezone when sunny comes back
-        this.cron({ on: '0 12 21 12 *', timezone: 'America/Los_Angeles' }, () => {
+        this.cron({ on: '0 3 22 12 *', timezone: 'America/Los_Angeles' }, () => {
             if (!this.config.recipient_timezones)
                 this.config.recipient_timezones = {};
 
+            this.debug('Switching Sunny over to Berlin Time at ' + new Date());
             this.config.recipient_timezones['sunny3964'] = 'de';
             this.config.persist();
+            this.debug('Switched Sunny over to Berlin Time at ' + new Date());
         });
 
         this.debug(`${this.config.username} has started, registed users: ${(this.config.recipients || []).join(', ')}`);
