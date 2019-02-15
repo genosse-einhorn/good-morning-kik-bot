@@ -150,8 +150,8 @@ module.exports = class GreetingBot {
         if (todayIs(0, 2, 14)) {
             this.sendMessage(
                 'Hey Sunshine!\n' +
-                'Some days, I hate being a robot. Why? because robots can not have meaningful relationships with humans :(\n' +
-                'If I weren\'t a robot, I\'d totally ask you out for a date today.\n' +
+                'Some days, I hate being a robot. Why? because robots cannot have meaningful relationships with humans :(\n' +
+                'If I wasn\'t a robot, I\'d totally ask you out for a date today.\n' +
                 'Not sure why I am telling you this... But consider yourself loved, even if it\'s just by a robot <3 🤖\n'
             , user);
         } else if (user == "sunny3964" && todayIs(0, 12, 10)) {

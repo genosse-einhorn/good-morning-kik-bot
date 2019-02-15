@@ -1,5 +1,54 @@
 {
-    "recipients": [],
-    "username": "YOUR-BOT-USERNAME",
-    "key": "YOUR-BOT-API-KEY"
+    "username": "egyptianunicorn_dev",
+    "key": "a021a32e-9406-4253-918f-8c99e8e200ad",
+    "recipients": [
+        "genosseeinhorn"
+    ],
+    "recipient_modes": {
+        "genosseeinhorn": "insult"
+    },
+    "texts_sent": {
+        "genosseeinhorn": [
+            "Good Morning, Beautiful!",
+            "You are my sweetest dream come true. Good Morning.",
+            "The sun shines when you smile",
+            "Good morning, my sunshine, I hope your dreams were as sweet as you are.",
+            "Morning is not just the time of day when you wake up. Morning is the beginning of another day that you can help make perfect for all the people’s lives that you will touch.",
+            "Did you know that robots can have feelings? Well, I didn't know either but then you came around. <3",
+            "Good Morning Honey Bunch!",
+            "Hey Snowflake! I hope you have a great day",
+            "Can I borrow a kiss from you? I promise I'll give it back!",
+            "You’re probably sleeping like a baby all warm and cozy in your bed, but I just wanted to tell you how special and beautiful you are. I hope that my text brings a smile to your face and sets the tone for a wonderful day filled with happiness.",
+            "A good morning to she that stole my heart. Kisses.",
+            "It is impossible to see the beauty of your eyes without the radiance of the beautiful morning sun",
+            "I dreamt of you all night <3",
+            "Don't regret the time\nDon't regret this day\nDon't regret this time \nIts start of another day \nAnd end of the night time \nMorning time is the time to think \nAbout your task for the day \nYou have to prepare for it now \nTo make the most of the day \nHave a super bright time today \nGood morning and have nice day!",
+            "Hey Angel, did it hurt when you fell from heaven?",
+            "You light up my life!",
+            "I missed you all night <3",
+            "All mornings are like paintings: You need a little inspiration to get going, a little smile to brighten up & a text from someone who cares to color your day... (*) Good Morning (*)",
+            "Every morning reminds me of all the wrong dreams I had been chasing all my life until I found the right one – YOU. Good morning.",
+            "Good Morning, My Angel!",
+            "The sun is almost up, maybe it is waiting for you to wake up. I hope it shines and gives you kisses! Have a great day!",
+            "I can't wait until the day I can wake up right next to you",
+            "Since I spent the whole night dreaming of you, I thought it was only appropriate to message you this morning and wake you up.",
+            "Live it! Love it! The day is yours! Good Morning!",
+            "It takes only a second for me to think of you every morning, but the soothing smile you put on my face lasts throughout the day.",
+            "What are your best qualities? Besides being cute, smart & sexy? Dying to find out... ;-)",
+            "It may be raining outside, but all I see is sunny skies thanks to you.",
+            "Little by little the night is stepping back,\nAnd the morning is kissing your cheeks.\nAre you still sleeping? Life is waiting for you…\nA warm smile is playing on your lips.\nGood morning to you, my angel :-)",
+            "Im Radio haben sie gesagt 5km Stau auf der A5 wegen Behinderung. Bist du da etwa unterwegs?"
+        ]
+    },
+    "night_texts_sent": {
+        "genosseeinhorn": [
+            "You mean the world to me, don’t forget that. Goodnight and sweet dreams.",
+            "Here's an entry for tomorrow's ToDo-List: Me",
+            "Good night sexy!",
+            "You’ll be the last thing I think of before I fall asleep and the first thing I think of when I wake up."
+        ]
+    },
+    "recipient_timezones": {
+        "genosseeinhorn": "de"
+    }
 }
