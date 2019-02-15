@@ -155,11 +155,8 @@ module.exports = class GreetingBot {
                 'Not sure why I am telling you this... But consider yourself loved, even if it\'s just by a robot <3 🤖\n'
             , user);
         } else if (user == "sunny3964" && todayIs(0, 12, 10)) {
-            // TODO: Make year independent
             // TODO: Insert sweet birthday text
             this.sendMessage("Happy Birthday!", user);
-        } else if (user == "sunny3964" && todayIs(2017, 8, 19)) {
-            this.sendMessage("Have a safe flight and a fun exchange semester in the U.S.! ✈️ 🇺🇸", user);
         } else {
             // business as usual
             this.sendMessage(this.getMorningTextForUser(user), user);
@@ -294,17 +291,6 @@ module.exports = class GreetingBot {
             for (let user of this.config.recipients) {
                 this.sendWithDelay("Happy New Year, My Angel <3", user, 5*60*1000 /* 5 min */);
             }
-        });
-
-        // Changing timezone when sunny comes back
-        this.cron({ on: '0 3 22 12 *', timezone: 'America/Los_Angeles' }, () => {
-            if (!this.config.recipient_timezones)
-                this.config.recipient_timezones = {};
-
-            this.debug('Switching Sunny over to Berlin Time at ' + new Date());
-            this.config.recipient_timezones['sunny3964'] = 'de';
-            this.config.persist();
-            this.debug('Switched Sunny over to Berlin Time at ' + new Date());
         });
 
         this.debug(`${this.config.username} has started, registed users: ${(this.config.recipients || []).join(', ')}`);

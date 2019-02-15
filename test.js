@@ -444,7 +444,6 @@ suite('Messages on time', function() {
 
             return continueImmediate();
         }).then(() => {
-            console.log('waiting another 12h at ' + new Date());
             clock.tick('12:00:00'); // 22:00+1
             assert.equal(backend._receivedMessages['bitch'].length, 3);
             assert.include(texts.insult.night, backend._lastReceived('bitch'));
@@ -589,8 +588,8 @@ suite('Special Messages', function() {
     };
     let clock = null;
 
-    test('Christmas Special 2017', function() {
-        clock = lolex.install(moment.tz('2017-12-24 17:59:59', 'Europe/Berlin').toDate());
+    test('Christmas Special 2019', function() {
+        clock = lolex.install(moment.tz('2019-12-24 17:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
         let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
@@ -602,8 +601,8 @@ suite('Special Messages', function() {
         assert.isNotNull(backend._lastReceived('sweetie'));
     });
 
-    test('Christmas Special 2018', function() {
-        clock = lolex.install(moment.tz('2018-12-24 17:59:59', 'Europe/Berlin').toDate());
+    test('Christmas Special 2020', function() {
+        clock = lolex.install(moment.tz('2020-12-24 17:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
         let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
@@ -615,8 +614,8 @@ suite('Special Messages', function() {
         assert.isNotNull(backend._lastReceived('sweetie'));
     });
 
-    test('New Year Special 2018', function() {
-        clock = lolex.install(moment.tz('2017-12-31 23:00:00', 'Europe/Berlin').toDate());
+    test('New Year Special 2020', function() {
+        clock = lolex.install(moment.tz('2019-12-31 23:00:00', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
         let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
@@ -629,24 +628,8 @@ suite('Special Messages', function() {
         assert.isNotNull(backend._lastReceived('sweetie'));
     });
 
-    test('Birthday Special 2017 for sunny in LA', function() {
-        let _cfg = JSON.parse(JSON.stringify(config));
-        _cfg.recipient_timezones = { 'sunny3964': 'la' };
-        clock = lolex.install(moment.tz('2017-12-10 06:59:59', 'America/Los_Angeles').toDate());
-        let backend = new MockBackend();
-        let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:()=>{}});
-        bot.start();
-
-        clock.tick('02:01:00');
-
-        assert.notInclude(texts.sweet.morning, backend._lastReceived('sunny3964'));
-        assert.notInclude(texts.sweet.night, backend._lastReceived('sunny3964'));
-        assert.isNotNull(backend._lastReceived('sunny3964'));
-        assert.match(backend._lastReceived('sunny3964'), /birthday/i);
-    })
-
-    test('Birthday Special 2018 for sunny', function() {
-        clock = lolex.install(moment.tz('2018-12-10 06:59:59', 'Europe/Berlin').toDate());
+    test('Birthday Special 2019 for sunny', function() {
+        clock = lolex.install(moment.tz('2019-12-10 06:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
         let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
@@ -659,8 +642,8 @@ suite('Special Messages', function() {
         assert.match(backend._lastReceived('sunny3964'), /birthday/i);
     })
 
-    test('Valentine\'s Day Special 2018', function() {
-        clock = lolex.install(moment.tz('2018-02-14 06:59:59', 'Europe/Berlin').toDate());
+    test('Valentine\'s Day Special 2020', function() {
+        clock = lolex.install(moment.tz('2020-02-14 06:59:59', 'Europe/Berlin').toDate());
         let backend = new MockBackend();
         let bot = new Bot({config:config, texts:texts, backend:backend, cron:cron, debug:()=>{}});
         bot.start();
@@ -672,51 +655,6 @@ suite('Special Messages', function() {
         assert.isNotNull(backend._lastReceived('sweetie'));
         assert.match(backend._lastReceived('sweetie'), /date/i);
     })
-
-    test('Sunny flying back from LA special (w/ timezone change)', function() {
-        let _cfg = JSON.parse(JSON.stringify(config));
-        _cfg.recipient_timezones = { 'sunny3964': 'la' };
-        _cfg.persist = function() {};
-        clock = lolex.install(moment.tz('2017-12-21 06:59:59', 'America/Los_Angeles').toDate(), ["setTimeout", "clearTimeout", "setInterval", "clearInterval", "Date"]);
-        let backend = new MockBackend();
-        let bot = new Bot({config:_cfg, texts:texts, backend:backend, cron:cron, debug:() => {}});
-        bot.start();
-
-        // Sunny flies back on Thu, Dec 21 / Fri, Dec 22, arriving around 8PM in DE
-
-        clock.tick('02:01:00');
-        // 9:01 in L.A. // 18:00 in Europe: Sunny has received a good morning text
-        assert.include(texts.sweet.morning, backend._lastReceived('sunny3964'));
-        assert.isNotNull(backend._lastReceived('sunny3964'));
-        assert.equal(backend._receivedMessages['sunny3964'].length, 1);
-        return continueImmediate(() => {
-
-            // sunny will board the flight on thu evening, and arrive fri evening
-            // when flying back to europe, sunny will skip 9 hours + the flight time.
-            // we have no idea when to send a useful good morning text, so we'll just skip
-            // that and deliver the next evening text in DE
-
-            clock.tick('13:00:00');
-            // 22:00 in L.A. // 7:00+1 in Europe: Sunny has received a goodnight text still in LA timezone
-            assert.equal(_cfg.recipient_timezones['sunny3964'], 'la');
-            assert.equal(backend._receivedMessages['sunny3964'].length, 2);
-            assert.include(texts.sweet.night, backend._lastReceived('sunny3964'));
-            return continueImmediate();
-        }).then(() => {
-            clock.tick('03:00:00');
-            // 01:00+1 in L.A. // 10:00+1 in Europe: Sunny has not received anything new
-            assert.equal(backend._receivedMessages['sunny3964'].length, 2);
-
-            return continueImmediate();
-        }).then(() => {
-            clock.tick('12:00:00');
-
-            // 13:00+1 in L.A. // 22:00+1 in Europe: Sunny has received a goodnight text in european time
-            assert.equal(_cfg.recipient_timezones['sunny3964'], 'de');
-            assert.equal(backend._receivedMessages['sunny3964'].length, 3);
-            assert.include(texts.sweet.night, backend._lastReceived('sunny3964'));
-        });
-    });
 
     afterEach(function() {
         cron.cancelAll();
